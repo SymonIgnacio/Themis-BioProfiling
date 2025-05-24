@@ -9,10 +9,15 @@ const Dashboard = () => {
   const [activeSection, setActiveSection] = useState('home');
 
   useEffect(() => {
+    // Debug output
+    console.log("Dashboard - Current User:", currentUser);
+    console.log("Dashboard - Is Authenticated:", isAuthenticated);
+    console.log("Dashboard - Role ID:", currentUser?.role_id);
+    
     if (!isAuthenticated) {
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, currentUser]);
 
   const handleLogout = () => {
     logout();
@@ -31,8 +36,8 @@ const Dashboard = () => {
         </div>
         <div className="sidebar-user">
           <div className="user-info">
-            <p className="user-name">{currentUser?.full_name || currentUser?.username}</p>
-            <p className="user-role">{currentUser?.role}</p>
+            <p className="user-name">{currentUser?.username}</p>
+            <p className="user-role">{currentUser?.role_id === 1 ? 'Admin' : 'User'}</p>
           </div>
         </div>
         <nav className="sidebar-nav">
@@ -55,7 +60,7 @@ const Dashboard = () => {
                 <span>Settings</span>
               </a>
             </li>
-            {currentUser?.role === 'admin' && (
+            {currentUser?.role_id === 1 && (
               <li>
                 <a href="#" onClick={(e) => { e.preventDefault(); navigate('/admin/dashboard'); }}>
                   <i className='bx bx-shield-quarter'></i>
