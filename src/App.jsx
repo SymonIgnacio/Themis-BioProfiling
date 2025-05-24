@@ -3,6 +3,10 @@ import Login from './components/Login/Login'
 import Signup from './components/Signup/Signup'
 import Dashboard from './components/Dashboard/Dashboard'
 import AdminDashboard from './components/AdminPages/AdminDashboard'
+import PUPCList from './components/PUPCList'
+import VisitorList from './components/VisitorList'
+import VisitorLogList from './components/VisitorLogList'
+import BlacklistManagement from './components/BlacklistManagement'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminRoute from './components/AdminRoute'
 import { useAuth } from './context/AuthContext'
@@ -14,7 +18,7 @@ function App() {
   // Redirect based on user role
   const getHomePage = () => {
     if (!isAuthenticated) return '/login';
-    return currentUser?.role === 'admin' ? '/admin/dashboard' : '/dashboard';
+    return currentUser?.role_id === 1 ? '/admin/dashboard' : '/dashboard';
   };
 
   return (
@@ -23,12 +27,52 @@ function App() {
         <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to={getHomePage()} />} />
         <Route path="/signup" element={!isAuthenticated ? <Signup /> : <Navigate to={getHomePage()} />} />
         
-        {/* Regular user route */}
+        {/* Regular user routes */}
         <Route 
           path="/dashboard" 
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* PUPC Management */}
+        <Route 
+          path="/pupcs" 
+          element={
+            <ProtectedRoute>
+              <PUPCList />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Visitor Management */}
+        <Route 
+          path="/visitors" 
+          element={
+            <ProtectedRoute>
+              <VisitorList />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Visitor Logs */}
+        <Route 
+          path="/visitor-logs" 
+          element={
+            <ProtectedRoute>
+              <VisitorLogList />
+            </ProtectedRoute>
+          } 
+        />
+        
+        {/* Blacklist Management */}
+        <Route 
+          path="/blacklist" 
+          element={
+            <ProtectedRoute>
+              <BlacklistManagement />
             </ProtectedRoute>
           } 
         />

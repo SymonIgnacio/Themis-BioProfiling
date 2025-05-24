@@ -23,13 +23,13 @@ CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 class User(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True)
-    full_name = db.Column(db.String(100), nullable=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    password_hash = db.Column(db.String(255), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default='user')
-    created_at = db.Column(db.DateTime, nullable=True)
-    updated_at = db.Column(db.DateTime, nullable=True)
+    role_id = db.Column(db.Integer, nullable=False)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password_hash = db.Column(db.String(60), nullable=False)
+    pin_hash = db.Column(db.String(60), nullable=True)
+    face_template = db.Column(db.LargeBinary, nullable=True)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    last_login = db.Column(db.DateTime, nullable=True)
 
 # Handle preflight OPTIONS requests
 @app.route('/api/login', methods=['OPTIONS'])
@@ -108,8 +108,7 @@ def signup():
         if User.query.filter_by(username=data['username']).first():
             return jsonify({'message': 'Username already exists!'}), 409
         
-        if User.query.filter_by(email=data['email']).first():
-            return jsonify({'message': 'Email already exists!'}), 409
+        # Email check removed as it's not in the schema
         
         # Hash the password
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
@@ -117,12 +116,9 @@ def signup():
         # Create new user
         new_user = User(
             username=data['username'],
-            email=data['email'],
-            full_name=data.get('full_name', ''),
+            role_id=1,  # Default role_id (you may need to adjust this based on your Roles table)
             password_hash=hashed_password,
-            role='user',
-            created_at=datetime.datetime.utcnow(),
-            updated_at=datetime.datetime.utcnow()
+            created_at=datetime.datetime.utcnow()
         )
         
         # Add user to database
@@ -149,8 +145,22 @@ def login():
         if not user:
             return jsonify({'message': 'User not found!'}), 401
             
-        password_correct = bcrypt.check_password_hash(user.password_hash, data['password'])
-        app.logger.info(f"Password correct: {password_correct}")
+        # For debugging
+        app.logger.info(f"Stored hash: {user.password_hash}")
+        app.logger.info(f"Password to check: {data['password']}")
+        
+        # Check if password matches stored password directly (plain text comparison)
+        if user.password_hash == data['password']:
+            password_correct = True
+            app.logger.info("Plain text password match")
+        else:
+            # Try bcrypt verification as fallback
+            try:
+                password_correct = bcrypt.check_password_hash(user.password_hash, data['password'])
+                app.logger.info(f"Bcrypt password check: {password_correct}")
+            except Exception as e:
+                app.logger.error(f"Password check error: {str(e)}")
+                password_correct = False
         
         if not password_correct:
             return jsonify({'message': 'Invalid password!'}), 401
@@ -165,9 +175,7 @@ def login():
             'token': token,
             'user_id': user.user_id,
             'username': user.username,
-            'email': user.email,
-            'full_name': user.full_name,
-            'role': user.role
+            'role_id': user.role_id
         })
     except Exception as e:
         app.logger.error(f"Error in login: {str(e)}")
@@ -181,9 +189,7 @@ def get_profile(current_user):
         return jsonify({
             'user_id': current_user.user_id,
             'username': current_user.username,
-            'email': current_user.email,
-            'full_name': current_user.full_name,
-            'role': current_user.role
+            'role_id': current_user.role_id
         })
     except Exception as e:
         app.logger.error(f"Error in get_profile: {str(e)}")

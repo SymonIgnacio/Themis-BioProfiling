@@ -12,10 +12,10 @@ const AdminRoute = ({ children }) => {
     return <Navigate to="/login" />;
   }
 
-  if (currentUser?.role !== 'admin') {
+  if (currentUser?.role_id !== 1) {
     return <Navigate to="/dashboard" />;
   }
-
+  
   return children;
 };
 

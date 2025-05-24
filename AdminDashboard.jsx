@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from './src/context/AuthContext';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -11,7 +11,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
-    } else if (currentUser?.role !== 'admin') {
+    } else if (currentUser?.role_id !== 1) {
       navigate('/dashboard');
     }
   }, [isAuthenticated, currentUser, navigate]);
@@ -33,8 +33,8 @@ const AdminDashboard = () => {
         </div>
         <div className="admin-sidebar-user">
           <div className="user-info">
-            <p className="user-name">{currentUser?.full_name || currentUser?.username}</p>
-            <p className="user-role">{currentUser?.role}</p>
+            <p className="user-name">{currentUser?.username}</p>
+            <p className="user-role">Officer (Admin)</p>
           </div>
         </div>
         <nav className="admin-sidebar-nav">

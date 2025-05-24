@@ -46,7 +46,9 @@ export const AuthProvider = ({ children }) => {
       setToken(token);
       setCurrentUser(userData);
       
-      return { success: true };
+      return { 
+        success: true
+      };
     } catch (error) {
       console.error('Login error:', error);
       return {
@@ -56,13 +58,11 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (username, email, password, full_name = '') => {
+  const signup = async (username, password) => {
     try {
       await axios.post('/api/signup', {
         username,
-        email,
-        password,
-        full_name
+        password
       });
       
       return { success: true };

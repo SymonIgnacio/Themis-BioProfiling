@@ -6,10 +6,8 @@ import './Signup.css';
 const Signup = () => {
   const [formData, setFormData] = useState({
     username: '',
-    email: '',
     password: '',
-    confirmPassword: '',
-    full_name: ''
+    confirmPassword: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,10 +41,8 @@ const Signup = () => {
 
     try {
       const result = await signup(
-        formData.username, 
-        formData.email, 
-        formData.password,
-        formData.full_name
+        formData.username,
+        formData.password
       );
       
       if (result.success) {
@@ -70,35 +66,12 @@ const Signup = () => {
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="full_name">Full Name</label>
-            <input
-              type="text"
-              id="full_name"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleChange}
-            />
-          </div>
-          
-          <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
               type="text"
               id="username"
               name="username"
               value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
               onChange={handleChange}
               required
             />

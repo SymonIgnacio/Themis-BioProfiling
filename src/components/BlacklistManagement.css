@@ -1,0 +1,136 @@
+.blacklist-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.blacklist-form-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.blacklist-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.form-group select,
+.form-group textarea {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.form-group textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.add-button {
+  padding: 10px 20px;
+  background-color: #43a047;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+
+.add-button:hover {
+  background-color: #2e7d32;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+}
+
+.search-bar input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.blacklist-table-container {
+  overflow-x: auto;
+}
+
+.blacklist-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.blacklist-table th,
+.blacklist-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.blacklist-table th {
+  background-color: #1a237e;
+  color: white;
+  font-weight: 500;
+}
+
+.blacklist-table tr:nth-child(even) {
+  background-color: #f5f5f5;
+}
+
+.blacklist-table tr:hover {
+  background-color: #e8eaf6;
+}
+
+.remove-button {
+  padding: 6px 12px;
+  background-color: #e53935;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  background-color: #c62828;
+}
+
+.loading, .error, .no-results {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+}
+
+.error {
+  color: #e53935;
+}
+
+@media (max-width: 768px) {
+  .blacklist-form {
+    grid-template-columns: 1fr;
+  }
+  
+  .blacklist-table th,
+  .blacklist-table td {
+    padding: 8px;
+  }
+}
