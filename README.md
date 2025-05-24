@@ -1,11 +1,21 @@
-# React + Vite
+# Themis BioProfiling System
 
+A full-stack web application built with React + Vite frontend and Flask backend, providing user authentication and dashboard functionality.
+
+## Frontend
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:
 
 - [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+
+## Backend
+The backend is built with Flask and provides:
+- User authentication with JWT tokens
+- SQLite database with SQLAlchemy ORM
+- Password hashing with bcrypt
+- CORS support for frontend integration
 
 ## Expanding the ESLint configuration
 

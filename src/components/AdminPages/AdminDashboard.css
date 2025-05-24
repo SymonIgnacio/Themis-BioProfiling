@@ -1,33 +1,33 @@
-.dashboard-container {
+.admin-dashboard-container {
   display: flex;
   min-height: 100vh;
   background-color: #f5f5f5;
 }
 
 /* Sidebar styles */
-.sidebar {
+.admin-sidebar {
   width: 250px;
-  background-color: #2c3e50;
+  background-color: #1a2035;
   color: white;
   display: flex;
   flex-direction: column;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
-.sidebar-header {
+.admin-sidebar-header {
   padding: 20px;
-  border-bottom: 1px solid #34495e;
+  border-bottom: 1px solid #2d3748;
 }
 
-.sidebar-header h2 {
+.admin-sidebar-header h2 {
   margin: 0;
   font-size: 1.5rem;
   color: white;
 }
 
-.sidebar-user {
+.admin-sidebar-user {
   padding: 20px;
-  border-bottom: 1px solid #34495e;
+  border-bottom: 1px solid #2d3748;
 }
 
 .user-info {
@@ -43,50 +43,50 @@
 .user-role {
   margin: 5px 0 0;
   font-size: 0.8rem;
-  color: #bdc3c7;
+  color: #a0aec0;
 }
 
-.sidebar-nav {
+.admin-sidebar-nav {
   flex: 1;
   padding: 20px 0;
 }
 
-.sidebar-nav ul {
+.admin-sidebar-nav ul {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.sidebar-nav li {
+.admin-sidebar-nav li {
   margin-bottom: 5px;
 }
 
-.sidebar-nav li a {
+.admin-sidebar-nav li a {
   display: flex;
   align-items: center;
   padding: 12px 20px;
-  color: #ecf0f1;
+  color: #e2e8f0;
   text-decoration: none;
   transition: background-color 0.3s;
 }
 
-.sidebar-nav li a:hover {
-  background-color: #34495e;
+.admin-sidebar-nav li a:hover {
+  background-color: #2d3748;
 }
 
-.sidebar-nav li.active a {
-  background-color: #3498db;
+.admin-sidebar-nav li.active a {
+  background-color: #4299e1;
   color: white;
 }
 
-.sidebar-nav i {
+.admin-sidebar-nav i {
   margin-right: 10px;
   font-size: 1.2rem;
 }
 
-.sidebar-footer {
+.admin-sidebar-footer {
   padding: 20px;
-  border-top: 1px solid #34495e;
+  border-top: 1px solid #2d3748;
 }
 
 .logout-button {
@@ -95,7 +95,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #e74c3c;
+  background-color: #e53e3e;
   color: white;
   border: none;
   border-radius: 4px;
@@ -104,7 +104,7 @@
 }
 
 .logout-button:hover {
-  background-color: #c0392b;
+  background-color: #c53030;
 }
 
 .logout-button i {
@@ -113,34 +113,35 @@
 }
 
 /* Main content styles */
-.main-content {
+.admin-main-content {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.content-header {
+.admin-content-header {
   padding: 20px;
   background-color: white;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.content-header h1 {
+.admin-content-header h1 {
   margin: 0;
   font-size: 1.8rem;
-  color: #2c3e50;
+  color: #1a202c;
 }
 
-.content-body {
+.admin-content-body {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
 }
 
 .welcome-section,
-.biometrics-section,
-.reports-section,
-.settings-section {
+.users-section,
+.config-section,
+.logs-section,
+.data-section {
   background-color: white;
   border-radius: 8px;
   padding: 20px;
@@ -148,11 +149,12 @@
 }
 
 .welcome-section h2,
-.biometrics-section h2,
-.reports-section h2,
-.settings-section h2 {
+.users-section h2,
+.config-section h2,
+.logs-section h2,
+.data-section h2 {
   margin-top: 0;
-  color: #2c3e50;
+  color: #1a202c;
 }
 
 /* Loading state */
@@ -162,5 +164,5 @@
   align-items: center;
   height: 100vh;
   font-size: 1.2rem;
-  color: #3498db;
+  color: #4299e1;
 }

@@ -1,0 +1,159 @@
+.pupc-list-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f5f5f5;
+  border-radius: 5px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+
+.filter-group label {
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.filter-group select,
+.filter-group input {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.pupc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.pupc-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.pupc-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.pupc-image {
+  height: 200px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pupc-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.no-image {
+  color: #999;
+  font-style: italic;
+}
+
+.pupc-info {
+  padding: 15px;
+}
+
+.pupc-info h3 {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.pupc-info p {
+  margin: 5px 0;
+}
+
+.status-in-custody {
+  color: #e53935;
+  font-weight: 500;
+}
+
+.status-released {
+  color: #43a047;
+  font-weight: 500;
+}
+
+.status-transferred {
+  color: #1e88e5;
+  font-weight: 500;
+}
+
+.pupc-info button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  background-color: #1a237e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+
+.pupc-info button:hover {
+  background-color: #303f9f;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.add-button {
+  padding: 10px 20px;
+  background-color: #43a047;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.add-button:hover {
+  background-color: #2e7d32;
+}
+
+.loading, .error, .no-results {
+  text-align: center;
+  padding: 30px;
+  font-size: 18px;
+}
+
+.error {
+  color: #e53935;
+}
+
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .pupc-grid {
+    grid-template-columns: 1fr;
+  }
+}

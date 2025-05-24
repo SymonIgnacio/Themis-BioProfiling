@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 import './Login.css';
 
 const Login = () => {
@@ -11,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -26,21 +27,16 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/login', formData);
+      const result = await login(formData.username, formData.password);
       
-      // Store token in localStorage
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify({
-        id: response.data.user_id,
-        username: response.data.username,
-        email: response.data.email,
-        role: response.data.role
-      }));
-      
-      // Redirect to dashboard
-      navigate('/dashboard');
+      if (result.success) {
+        // Navigation will be handled by the App component based on user role
+      } else {
+        setError(result.message);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }

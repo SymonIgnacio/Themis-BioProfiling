@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 import './Signup.css';
 
 const Signup = () => {
@@ -8,11 +8,13 @@ const Signup = () => {
     username: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    full_name: ''
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -40,19 +42,20 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      // Submit only username, email, and password (not confirmPassword)
-      const dataToSubmit = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password
-      };
+      const result = await signup(
+        formData.username, 
+        formData.email, 
+        formData.password,
+        formData.full_name
+      );
       
-      await axios.post('http://localhost:5000/api/signup', dataToSubmit);
-      
-      // Redirect to login page on successful signup
-      navigate('/login');
+      if (result.success) {
+        navigate('/login');
+      } else {
+        setError(result.message);
+      }
     } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -66,6 +69,17 @@ const Signup = () => {
         {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="full_name">Full Name</label>
+            <input
+              type="text"
+              id="full_name"
+              name="full_name"
+              value={formData.full_name}
+              onChange={handleChange}
+            />
+          </div>
+          
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
