@@ -24,10 +24,6 @@
 
 .form-group {
   margin-bottom: 1.5rem;
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   width: 100%;
   position: relative;
 }
@@ -45,6 +41,36 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 0.9rem;
+}
+
+/* Password input container */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container input {
+  flex: 1;
+  padding-right: 70px; /* Make room for the button */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+
+.password-toggle:hover {
+  background-color: #f0f0f0;
 }
 
 .login-button {

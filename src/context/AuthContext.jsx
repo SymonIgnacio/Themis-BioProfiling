@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
     const loadUser = async () => {
       if (token) {
         try {
-          const response = await axios.get('/api/profile', {
+          const response = await axios.get('http://localhost:5000/api/profile', {
             headers: {
               Authorization: `Bearer ${token}`
             }
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
-      const response = await axios.post('/api/login', {
+      const response = await axios.post('http://localhost:5000/api/login', {
         username,
         password
       });
@@ -58,11 +58,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (username, password) => {
+  const signup = async (username, password, email, fullName) => {
     try {
-      await axios.post('/api/signup', {
+      await axios.post('http://localhost:5000/api/signup', {
         username,
-        password
+        password,
+        email,
+        full_name: fullName
       });
       
       return { success: true };

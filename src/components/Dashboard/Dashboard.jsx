@@ -3,26 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Dashboard.css';
 
+// Import modular components
+import Sidebar from './Sidebar';
+import VisitsSection from './VisitsSection';
+import AccountSection from './AccountSection';
+
 const Dashboard = () => {
-  const { currentUser, logout, isAuthenticated } = useAuth();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState('visits');
 
   useEffect(() => {
-    // Debug output
-    console.log("Dashboard - Current User:", currentUser);
-    console.log("Dashboard - Is Authenticated:", isAuthenticated);
-    console.log("Dashboard - Role ID:", currentUser?.role_id);
-    
     if (!isAuthenticated) {
       navigate('/login');
     }
-  }, [isAuthenticated, navigate, currentUser]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
+  }, [isAuthenticated, navigate]);
 
   if (!isAuthenticated) {
     return <div className="loading">Redirecting...</div>;
@@ -30,86 +25,22 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="sidebar">
-        <div className="sidebar-header">
-          <h2>Themis BioProfiling</h2>
-        </div>
-        <div className="sidebar-user">
-          <div className="user-info">
-            <p className="user-name">{currentUser?.username}</p>
-            <p className="user-role">{currentUser?.role_id === 1 ? 'Admin' : 'User'}</p>
-          </div>
-        </div>
-        <nav className="sidebar-nav">
-          <ul>
-            <li className={activeSection === 'home' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('home'); }}>
-                <i className='bx bx-home-alt'></i>
-                <span>Dashboard</span>
-              </a>
-            </li>
-            <li className={activeSection === 'reports' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('reports'); }}>
-                <i className='bx bx-bar-chart-alt-2'></i>
-                <span>Reports</span>
-              </a>
-            </li>
-            <li className={activeSection === 'settings' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('settings'); }}>
-                <i className='bx bx-cog'></i>
-                <span>Settings</span>
-              </a>
-            </li>
-            {currentUser?.role_id === 1 && (
-              <li>
-                <a href="#" onClick={(e) => { e.preventDefault(); navigate('/admin/dashboard'); }}>
-                  <i className='bx bx-shield-quarter'></i>
-                  <span>Admin Panel</span>
-                </a>
-              </li>
-            )}
-          </ul>
-        </nav>
-        <div className="sidebar-footer">
-          <button className="logout-button" onClick={handleLogout}>
-            <i className='bx bx-log-out'></i>
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+      <Sidebar 
+        activeSection={activeSection} 
+        setActiveSection={setActiveSection} 
+      />
       
       <div className="main-content">
         <header className="content-header">
           <h1>
-            {activeSection === 'home' && 'Dashboard'}
-            {activeSection === 'reports' && 'Reports'}
-            {activeSection === 'settings' && 'Settings'}
+            {activeSection === 'visits' && 'Visit Requests'}
+            {activeSection === 'account' && 'Account Settings'}
           </h1>
         </header>
         
         <div className="content-body">
-          {activeSection === 'home' && (
-            <div className="welcome-section">
-              <h2>Welcome to Themis BioProfiling System</h2>
-              <p>Select an option from the sidebar to get started.</p>
-            </div>
-          )}
-          
-          {activeSection === 'reports' && (
-            <div className="reports-section">
-              <h2>Reports</h2>
-              <p>Generate and view reports here.</p>
-              {/* Reports content will go here */}
-            </div>
-          )}
-          
-          {activeSection === 'settings' && (
-            <div className="settings-section">
-              <h2>Settings</h2>
-              <p>Configure system settings here.</p>
-              {/* Settings content will go here */}
-            </div>
-          )}
+          {activeSection === 'visits' && <VisitsSection />}
+          {activeSection === 'account' && <AccountSection />}
         </div>
       </div>
     </div>

@@ -11,7 +11,8 @@ const EnhancedDataTable = ({
   emptyMessage, 
   icon,
   onView,
-  onEdit
+  onEdit,
+  onAdd
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredData, setFilteredData] = useState([]);
@@ -144,6 +145,26 @@ const EnhancedDataTable = ({
           />
           <i className='bx bx-search search-icon'></i>
         </div>
+        
+        {type === 'pucs' && (
+          <button 
+            onClick={() => onAdd && onAdd()}
+            style={{
+              padding: '10px 16px',
+              backgroundColor: '#2ecc71',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              fontWeight: 'bold',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '5px'
+            }}
+          >
+            <i className='bx bx-plus'></i> Add New PUC
+          </button>
+        )}
       </div>
       
       <div className="data-table-container">

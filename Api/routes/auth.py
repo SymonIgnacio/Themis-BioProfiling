@@ -46,11 +46,13 @@ def signup():
         # Hash the password
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         
-        # Create new user
+        # Create new user with email and full_name
         new_user = User(
             username=data['username'],
-            role_id=1,  # Default role_id
+            role_id=3,  # Visitor role
             password_hash=hashed_password,
+            email=data.get('email'),
+            full_name=data.get('full_name'),
             created_at=datetime.datetime.utcnow()
         )
         

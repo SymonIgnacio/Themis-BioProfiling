@@ -7,10 +7,15 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    email: '',
+    fullName: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { signup } = useAuth();
 
@@ -25,6 +30,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     
     // Validate form
     if (formData.password !== formData.confirmPassword) {
@@ -42,11 +48,16 @@ const Signup = () => {
     try {
       const result = await signup(
         formData.username,
-        formData.password
+        formData.password,
+        formData.email,
+        formData.fullName
       );
       
       if (result.success) {
-        navigate('/login');
+        setSuccess('Account created successfully! You can now log in.');
+        setTimeout(() => {
+          navigate('/login');
+        }, 2000);
       } else {
         setError(result.message);
       }
@@ -60,11 +71,36 @@ const Signup = () => {
   return (
     <div className="signup-container">
       <div className="signup-form-container">
-        <h2>Create an Account</h2>
+        <h2>Create a Visitor Account</h2>
         
         {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
         
         <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="fullName">Full Name</label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
@@ -79,27 +115,47 @@ const Signup = () => {
           
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="password-input-container">
+              <input
+                type={showPassword ? "text" : "password"}
+                id="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button 
+                type="button" 
+                className="password-toggle" 
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
           
           <div className="form-group">
             <label htmlFor="confirmPassword">Confirm Password</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
+            <div className="password-input-container">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                id="confirmPassword"
+                name="confirmPassword"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                required
+              />
+              <button 
+                type="button" 
+                className="password-toggle" 
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? "Hide" : "Show"}
+              </button>
+            </div>
           </div>
+          
+         
           
           <button type="submit" className="signup-button" disabled={loading}>
             {loading ? 'Creating Account...' : 'Sign Up'}

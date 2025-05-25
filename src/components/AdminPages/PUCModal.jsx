@@ -8,10 +8,11 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
     gender: '',
     age: '',
     arrest_date: '',
+    release_date: '',
     category_id: '',
     status: '',
     mugshot_path: '',
-    crime_type_id: ''
+    crime_id: ''
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -30,11 +31,11 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
         console.error('Error fetching crime types:', err);
         // Fallback to hardcoded crime types if API fails
         setCrimeTypes([
-          { crime_type_id: 1, name: 'Theft' },
-          { crime_type_id: 2, name: 'Assault' },
-          { crime_type_id: 3, name: 'Drug Possession' },
-          { crime_type_id: 4, name: 'Robbery' },
-          { crime_type_id: 5, name: 'Fraud' }
+          { crime_id: 1, name: 'Murder', law_reference: 'Art. 248, RPC', description: 'Unlawful killing with qualifying circumstances' },
+          { crime_id: 2, name: 'Homicide', law_reference: 'Art. 249, RPC', description: 'Unlawful killing without qualifying circumstances' },
+          { crime_id: 3, name: 'Drug Possession', law_reference: 'Sec. 11, RA 9165', description: 'Possession of dangerous drugs' },
+          { crime_id: 4, name: 'Robbery', law_reference: 'Art. 293, RPC', description: 'Taking property with violence or intimidation' },
+          { crime_id: 5, name: 'Theft', law_reference: 'Art. 308, RPC', description: 'Taking property without violence or intimidation' }
         ]);
       }
     };
@@ -50,10 +51,11 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
         gender: puc.gender || '',
         age: puc.age || '',
         arrest_date: puc.arrest_date ? new Date(puc.arrest_date).toISOString().split('T')[0] : '',
+        release_date: puc.release_date ? new Date(puc.release_date).toISOString().split('T')[0] : '',
         category_id: puc.category_id || '',
         status: puc.status || '',
         mugshot_path: puc.mugshot_path || '',
-        crime_type_id: puc.crime_type_id || ''
+        crime_id: puc.crime_id || ''
       });
     }
     
@@ -94,7 +96,11 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
     <div className="modal-overlay">
       <div className="modal-container">
         <div className="modal-header">
-          <h2>{mode === 'edit' ? 'Edit PUC Record' : 'View PUC Record'}</h2>
+          <h2>
+            {mode === 'edit' && 'Edit PUC Record'}
+            {mode === 'view' && 'View PUC Record'}
+            {mode === 'add' && 'Add New PUC Record'}
+          </h2>
           <button className="modal-close-btn" onClick={onClose}>
             <i className='bx bx-x'></i>
           </button>
@@ -156,10 +162,33 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
                 
                 <div className="info-row">
                   <div className="info-item">
+                    <span className="label">Law Reference:</span>
+                    <span className="value">{puc.law_reference || 'N/A'}</span>
+                  </div>
+                </div>
+                
+                <div className="info-row">
+                  <div className="info-item">
+                    <span className="label">Law Description:</span>
+                    <span className="value">{puc.law_description || 'N/A'}</span>
+                  </div>
+                </div>
+                
+                <div className="info-row">
+                  <div className="info-item">
                     <span className="label">Arrest Date:</span>
                     <span className="value">{puc.arrest_date ? new Date(puc.arrest_date).toLocaleDateString() : 'N/A'}</span>
                   </div>
                 </div>
+                
+                {puc.status === 'Released' && (
+                  <div className="info-row">
+                    <div className="info-item">
+                      <span className="label">Release Date:</span>
+                      <span className="value">{puc.release_date ? new Date(puc.release_date).toLocaleDateString() : 'N/A'}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -259,6 +288,7 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
                     onChange={handleInputChange}
                   >
                     <option value="">Select Status</option>
+                    <option value="Pending">Pending</option>
                     <option value="In Custody">In Custody</option>
                     <option value="Released">Released</option>
                     <option value="Transferred">Transferred</option>
@@ -266,22 +296,38 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
                 </div>
                 
                 <div className="form-group">
-                  <label htmlFor="crime_type_id">Crime Type:</label>
+                  <label htmlFor="crime_id">Crime Type:</label>
                   <select 
-                    id="crime_type_id" 
-                    name="crime_type_id" 
-                    value={formData.crime_type_id} 
+                    id="crime_id" 
+                    name="crime_id" 
+                    value={formData.crime_id} 
                     onChange={handleInputChange}
                   >
                     <option value="">Select Crime Type</option>
                     {crimeTypes.map(type => (
-                      <option key={type.crime_type_id} value={type.crime_type_id}>
-                        {type.name}
+                      <option key={type.crime_id} value={type.crime_id}>
+                        {type.name} - {type.law_reference}
                       </option>
                     ))}
                   </select>
                 </div>
               </div>
+              
+              {formData.status === 'Released' && (
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="release_date">Release Date:</label>
+                    <input 
+                      type="date" 
+                      id="release_date" 
+                      name="release_date" 
+                      value={formData.release_date} 
+                      onChange={handleInputChange}
+                      required
+                    />
+                  </div>
+                </div>
+              )}
               
               <div className="form-row">
                 <div className="form-group">
@@ -298,7 +344,7 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
               
               <div className="form-actions">
                 <button type="submit" className="save-button" disabled={loading}>
-                  {loading ? 'Saving...' : 'Save Changes'}
+                  {loading ? 'Saving...' : mode === 'add' ? 'Add Record' : 'Save Changes'}
                 </button>
                 <button type="button" className="cancel-button" onClick={onClose}>
                   Cancel

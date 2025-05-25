@@ -65,7 +65,25 @@ const PUPCList = () => {
 
   return (
     <div className="pupc-list-container">
-      <h2>Persons Under Police Custody</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+        <h2>Persons Under Police Custody</h2>
+        <button 
+          onClick={() => navigate('/pupcs/new')} 
+          style={{
+            padding: '12px 24px',
+            backgroundColor: '#2ecc71',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+          }}
+        >
+          + Add New PUPC
+        </button>
+      </div>
       
       <div className="filters">
         <div className="filter-group">
@@ -135,11 +153,7 @@ const PUPCList = () => {
         )}
       </div>
       
-      <div className="action-buttons">
-        <button onClick={() => navigate('/pupcs/new')} className="add-button">
-          Add New PUPC
-        </button>
-      </div>
+
     </div>
   );
 };

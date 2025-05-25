@@ -13,6 +13,7 @@ import EnhancedDataTable from './EnhancedDataTable';
 import PlaceholderContent from './PlaceholderContent';
 import SectionWrapper from './SectionWrapper';
 import PUCModal from './PUCModal';
+import ReportsPage from './ReportsPage';
 
 const AdminDashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
@@ -115,7 +116,7 @@ const AdminDashboard = () => {
 
   // State for PUC modal
   const [selectedPUC, setSelectedPUC] = useState(null);
-  const [modalMode, setModalMode] = useState(null); // 'view' or 'edit'
+  const [modalMode, setModalMode] = useState(null); // 'view', 'edit', or 'add'
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleViewPUC = (puc) => {
@@ -130,18 +131,36 @@ const AdminDashboard = () => {
     setModalOpen(true);
   };
 
+  const handleAddPUC = () => {
+    setSelectedPUC(null);
+    setModalMode('add');
+    setModalOpen(true);
+  };
+
   const handleSavePUC = async (formData) => {
     try {
-      const response = await axios.put(`http://localhost:5000/api/pucs/${selectedPUC.pupc_id}`, formData);
-      
-      // Update the PUCs state with the updated record
-      setPucs(pucs.map(puc => 
-        puc.pupc_id === selectedPUC.pupc_id ? { ...puc, ...response.data } : puc
-      ));
-      
-      return response.data;
+      // For adding a new PUC
+      if (modalMode === 'add') {
+        const response = await axios.post('http://localhost:5000/api/pucs', formData);
+        
+        // Add the new PUC to the state
+        setPucs([...pucs, response.data]);
+        
+        return response.data;
+      } 
+      // For editing an existing PUC
+      else if (modalMode === 'edit' && selectedPUC) {
+        const response = await axios.put(`http://localhost:5000/api/pucs/${selectedPUC.pupc_id}`, formData);
+        
+        // Update the PUCs state with the updated record
+        setPucs(pucs.map(puc => 
+          puc.pupc_id === selectedPUC.pupc_id ? { ...puc, ...response.data } : puc
+        ));
+        
+        return response.data;
+      }
     } catch (error) {
-      console.error('Error updating PUC:', error);
+      console.error('Error saving PUC:', error);
       throw error;
     }
   };
@@ -165,6 +184,7 @@ const AdminDashboard = () => {
           icon="bx-user-pin"
           onView={handleViewPUC}
           onEdit={handleEditPUC}
+          onAdd={handleAddPUC}
         />
         {modalOpen && (
           <PUCModal
@@ -227,10 +247,7 @@ const AdminDashboard = () => {
     },
     reports: {
       title: 'Reports',
-      content: <PlaceholderContent 
-        icon="bx-bar-chart-alt-2" 
-        message="Reports will be displayed here" 
-      />
+      content: <ReportsPage />
     },
     users: {
       title: 'User Management',

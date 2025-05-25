@@ -4,6 +4,7 @@ import Signup from './components/Signup/Signup'
 import Dashboard from './components/Dashboard/Dashboard'
 import AdminDashboard from './components/AdminPages/AdminDashboard'
 import PUPCList from './components/PUPCList'
+import AddPUCForm from './components/AddPUCForm'
 import VisitorList from './components/VisitorList'
 import VisitorLogList from './components/VisitorLogList'
 import BlacklistManagement from './components/BlacklistManagement'
@@ -18,7 +19,9 @@ function App() {
   // Redirect based on user role
   const getHomePage = () => {
     if (!isAuthenticated) return '/login';
-    return currentUser?.role_id === 1 ? '/admin/dashboard' : '/dashboard';
+    if (currentUser?.role_id === 1) return '/admin/dashboard';
+    if (currentUser?.role_id === 3) return '/dashboard';
+    return '/login';
   };
 
   return (
@@ -43,6 +46,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PUPCList />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/pupcs/new" 
+          element={
+            <ProtectedRoute>
+              <AddPUCForm />
             </ProtectedRoute>
           } 
         />

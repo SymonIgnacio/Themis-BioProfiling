@@ -21,7 +21,7 @@ def create_app():
     # Initialize extensions
     db = init_db(app)
     bcrypt = Bcrypt(app)
-    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True, methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"], allow_headers=["Content-Type", "Authorization"])
     
     # Register blueprints
     app.register_blueprint(auth_bp, url_prefix='/api')
