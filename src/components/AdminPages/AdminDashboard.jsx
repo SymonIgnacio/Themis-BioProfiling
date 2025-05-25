@@ -4,8 +4,18 @@ import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import './AdminDashboard.css';
 
+// Import modular components
+import AdminNavbar from './AdminNavbar';
+import ContentHeader from './ContentHeader';
+import DashboardHome from './DashboardHome';
+import DataTable from './DataTable';
+import EnhancedDataTable from './EnhancedDataTable';
+import PlaceholderContent from './PlaceholderContent';
+import SectionWrapper from './SectionWrapper';
+import PUCModal from './PUCModal';
+
 const AdminDashboard = () => {
-  const { currentUser, logout, isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('home');
   const [dashboardStats, setDashboardStats] = useState(null);
@@ -53,634 +63,225 @@ const AdminDashboard = () => {
     }
   }, [isAuthenticated, currentUser, navigate]);
 
-  // Fetch dashboard stats
-  useEffect(() => {
-    if (activeSection === 'home') {
-      setLoading(prev => ({ ...prev, stats: true }));
-      axios.get('http://localhost:5000/api/dashboard/stats')
-        .then(response => {
-          setDashboardStats(response.data);
-          setError(prev => ({ ...prev, stats: null }));
-        })
-        .catch(err => {
-          console.error('Error fetching dashboard stats:', err);
-          setError(prev => ({ ...prev, stats: 'Failed to load dashboard statistics' }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, stats: false }));
-        });
-    }
-  }, [activeSection]);
-
-  // Fetch PUCs
-  useEffect(() => {
-    if (activeSection === 'puc') {
-      setLoading(prev => ({ ...prev, pucs: true }));
-      axios.get('http://localhost:5000/api/pucs')
-        .then(response => {
-          setPucs(response.data);
-          setError(prev => ({ ...prev, pucs: null }));
-        })
-        .catch(err => {
-          console.error('Error fetching PUCs:', err);
-          setError(prev => ({ ...prev, pucs: 'Failed to load PUC records' }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, pucs: false }));
-        });
-    }
-  }, [activeSection]);
-
-  // Fetch visitor logs
-  useEffect(() => {
-    if (activeSection === 'visitor-logs') {
-      setLoading(prev => ({ ...prev, visitorLogs: true }));
-      axios.get('http://localhost:5000/api/visitor-logs')
-        .then(response => {
-          setVisitorLogs(response.data);
-          setError(prev => ({ ...prev, visitorLogs: null }));
-        })
-        .catch(err => {
-          console.error('Error fetching visitor logs:', err);
-          setError(prev => ({ ...prev, visitorLogs: 'Failed to load visitor logs' }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, visitorLogs: false }));
-        });
-    }
-  }, [activeSection]);
-
-  // Fetch approvals
-  useEffect(() => {
-    if (activeSection === 'approvals') {
-      setLoading(prev => ({ ...prev, approvals: true }));
-      axios.get('http://localhost:5000/api/approvals')
-        .then(response => {
-          setApprovals(response.data);
-          setError(prev => ({ ...prev, approvals: null }));
-        })
-        .catch(err => {
-          console.error('Error fetching approvals:', err);
-          setError(prev => ({ ...prev, approvals: 'Failed to load approval requests' }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, approvals: false }));
-        });
-    }
-  }, [activeSection]);
-
-  // Fetch blacklisted
-  useEffect(() => {
-    if (activeSection === 'blacklisted') {
-      setLoading(prev => ({ ...prev, blacklisted: true }));
-      axios.get('http://localhost:5000/api/blacklisted')
-        .then(response => {
-          setBlacklisted(response.data);
-          setError(prev => ({ ...prev, blacklisted: null }));
-        })
-        .catch(err => {
-          console.error('Error fetching blacklisted:', err);
-          setError(prev => ({ ...prev, blacklisted: 'Failed to load blacklisted visitors' }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, blacklisted: false }));
-        });
-    }
-  }, [activeSection]);
-
-  // Fetch audit logs
-  useEffect(() => {
-    if (activeSection === 'logs') {
-      setLoading(prev => ({ ...prev, auditLogs: true }));
-      axios.get('http://localhost:5000/api/audit-logs')
-        .then(response => {
-          setAuditLogs(response.data);
-          setError(prev => ({ ...prev, auditLogs: null }));
-        })
-        .catch(err => {
-          console.error('Error fetching audit logs:', err);
-          setError(prev => ({ ...prev, auditLogs: 'Failed to load audit logs' }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, auditLogs: false }));
-        });
-    }
-  }, [activeSection]);
-
-  // Fetch users
-  useEffect(() => {
-    if (activeSection === 'users') {
-      setLoading(prev => ({ ...prev, users: true }));
-      axios.get('http://localhost:5000/api/users')
-        .then(response => {
-          setUsers(response.data);
-          setError(prev => ({ ...prev, users: null }));
-        })
-        .catch(err => {
-          console.error('Error fetching users:', err);
-          setError(prev => ({ ...prev, users: 'Failed to load users' }));
-        })
-        .finally(() => {
-          setLoading(prev => ({ ...prev, users: false }));
-        });
-    }
-  }, [activeSection]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  // Unified data fetching function
+  const fetchData = (section, endpoint, dataKey, loadingKey, errorMessage, setter) => {
+    setLoading(prev => ({ ...prev, [loadingKey]: true }));
+    axios.get(`http://localhost:5000/api/${endpoint}`)
+      .then(response => {
+        setter(response.data);
+        setError(prev => ({ ...prev, [loadingKey]: null }));
+      })
+      .catch(err => {
+        console.error(`Error fetching ${dataKey}:`, err);
+        setError(prev => ({ ...prev, [loadingKey]: errorMessage }));
+      })
+      .finally(() => {
+        setLoading(prev => ({ ...prev, [loadingKey]: false }));
+      });
   };
+
+  // Fetch data based on active section
+  useEffect(() => {
+    switch (activeSection) {
+      case 'home':
+        fetchData('home', 'dashboard/stats', 'dashboard stats', 'stats', 'Failed to load dashboard statistics', setDashboardStats);
+        break;
+      case 'puc':
+        fetchData('puc', 'pucs', 'PUCs', 'pucs', 'Failed to load PUC records', setPucs);
+        break;
+      case 'visitor-logs':
+        fetchData('visitor-logs', 'visitor-logs', 'visitor logs', 'visitorLogs', 'Failed to load visitor logs', setVisitorLogs);
+        break;
+      case 'approvals':
+        fetchData('approvals', 'approvals', 'approvals', 'approvals', 'Failed to load approval requests', setApprovals);
+        break;
+      case 'blacklisted':
+        fetchData('blacklisted', 'blacklisted', 'blacklisted', 'blacklisted', 'Failed to load blacklisted visitors', setBlacklisted);
+        break;
+      case 'logs':
+        fetchData('logs', 'audit-logs', 'audit logs', 'auditLogs', 'Failed to load audit logs', setAuditLogs);
+        break;
+      case 'users':
+        fetchData('users', 'users', 'users', 'users', 'Failed to load users', setUsers);
+        break;
+      default:
+        break;
+    }
+  }, [activeSection]);
 
   if (!isAuthenticated || !currentUser) {
     return <div className="loading">Redirecting...</div>;
   }
 
+  // State for PUC modal
+  const [selectedPUC, setSelectedPUC] = useState(null);
+  const [modalMode, setModalMode] = useState(null); // 'view' or 'edit'
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleViewPUC = (puc) => {
+    setSelectedPUC(puc);
+    setModalMode('view');
+    setModalOpen(true);
+  };
+
+  const handleEditPUC = (puc) => {
+    setSelectedPUC(puc);
+    setModalMode('edit');
+    setModalOpen(true);
+  };
+
+  const handleSavePUC = async (formData) => {
+    try {
+      const response = await axios.put(`http://localhost:5000/api/pucs/${selectedPUC.pupc_id}`, formData);
+      
+      // Update the PUCs state with the updated record
+      setPucs(pucs.map(puc => 
+        puc.pupc_id === selectedPUC.pupc_id ? { ...puc, ...response.data } : puc
+      ));
+      
+      return response.data;
+    } catch (error) {
+      console.error('Error updating PUC:', error);
+      throw error;
+    }
+  };
+
+  // Configuration for each section
+  const sectionConfig = {
+    home: {
+      title: 'Dashboard',
+      content: <DashboardHome loading={loading} error={error} dashboardStats={dashboardStats} />
+    },
+    puc: {
+      title: 'PUC Records',
+      content: <>
+        <EnhancedDataTable 
+          loading={loading.pucs}
+          error={error.pucs}
+          data={pucs}
+          type="pucs"
+          loadingMessage="Loading PUC records..."
+          emptyMessage="No PUC records found"
+          icon="bx-user-pin"
+          onView={handleViewPUC}
+          onEdit={handleEditPUC}
+        />
+        {modalOpen && (
+          <PUCModal
+            puc={selectedPUC}
+            isOpen={modalOpen}
+            onClose={() => setModalOpen(false)}
+            onSave={handleSavePUC}
+            mode={modalMode}
+          />
+        )}
+      </>
+    },
+    'visitor-logs': {
+      title: 'Visitor Logs',
+      content: <DataTable 
+        loading={loading.visitorLogs}
+        error={error.visitorLogs}
+        data={visitorLogs}
+        type="visitorLogs"
+        loadingMessage="Loading visitor logs..."
+        emptyMessage="No visitor logs found"
+        icon="bx-list-check"
+      />
+    },
+    approvals: {
+      title: 'Visitor Request Approvals',
+      content: <DataTable 
+        loading={loading.approvals}
+        error={error.approvals}
+        data={approvals}
+        type="approvals"
+        loadingMessage="Loading approval requests..."
+        emptyMessage="No pending approvals"
+        icon="bx-check-shield"
+      />
+    },
+    blacklisted: {
+      title: 'Blacklisted Visitors',
+      content: <DataTable 
+        loading={loading.blacklisted}
+        error={error.blacklisted}
+        data={blacklisted}
+        type="blacklisted"
+        loadingMessage="Loading blacklisted visitors..."
+        emptyMessage="No blacklisted visitors"
+        icon="bx-block"
+      />
+    },
+    logs: {
+      title: 'Audit Logs',
+      content: <DataTable 
+        loading={loading.auditLogs}
+        error={error.auditLogs}
+        data={auditLogs}
+        type="auditLogs"
+        loadingMessage="Loading audit logs..."
+        emptyMessage="No audit logs found"
+        icon="bx-history"
+      />
+    },
+    reports: {
+      title: 'Reports',
+      content: <PlaceholderContent 
+        icon="bx-bar-chart-alt-2" 
+        message="Reports will be displayed here" 
+      />
+    },
+    users: {
+      title: 'User Management',
+      content: <DataTable 
+        loading={loading.users}
+        error={error.users}
+        data={users}
+        type="users"
+        loadingMessage="Loading users..."
+        emptyMessage="No users found"
+        icon="bx-group"
+      />
+    },
+    settings: {
+      title: 'System Settings',
+      content: <PlaceholderContent 
+        icon="bx-cog" 
+        message="System settings will be displayed here" 
+      />
+    }
+  };
+
+  const renderContent = () => {
+    const config = sectionConfig[activeSection] || { title: '', content: null };
+    
+    if (activeSection === 'home') {
+      return config.content;
+    }
+    
+    return (
+      <SectionWrapper title={config.title}>
+        {config.content}
+      </SectionWrapper>
+    );
+  };
+
   return (
     <div className="admin-dashboard-container">
-      <div className="admin-sidebar">
-        <div className="admin-sidebar-header">
-          <h2>Themis BioProfiling</h2>
-        </div>
-        <div className="admin-sidebar-user">
-          <div className="user-info">
-            <p className="user-name">{currentUser?.username}</p>
-            <p className="user-role">Officer (Admin)</p>
-          </div>
-        </div>
-        <nav className="admin-sidebar-nav">
-          <ul>
-            <li className={activeSection === 'home' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('home'); }}>
-                <i className='bx bx-grid-alt'></i>
-                <span>Dashboard</span>
-              </a>
-            </li>
-            <li className={activeSection === 'puc' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('puc'); }}>
-                <i className='bx bx-user-pin'></i>
-                <span>PUC Records</span>
-              </a>
-            </li>
-            <li className={activeSection === 'visitor-logs' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('visitor-logs'); }}>
-                <i className='bx bx-list-check'></i>
-                <span>Visitor Logs</span>
-              </a>
-            </li>
-            <li className={activeSection === 'approvals' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('approvals'); }}>
-                <i className='bx bx-check-shield'></i>
-                <span>Approvals</span>
-              </a>
-            </li>
-            <li className={activeSection === 'blacklisted' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('blacklisted'); }}>
-                <i className='bx bx-block'></i>
-                <span>Blacklisted</span>
-              </a>
-            </li>
-            <li className={activeSection === 'logs' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('logs'); }}>
-                <i className='bx bx-history'></i>
-                <span>Audit Logs</span>
-              </a>
-            </li>
-            <li className={activeSection === 'reports' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('reports'); }}>
-                <i className='bx bx-bar-chart-alt-2'></i>
-                <span>Reports</span>
-              </a>
-            </li>
-            <li className={activeSection === 'users' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('users'); }}>
-                <i className='bx bx-group'></i>
-                <span>User Management</span>
-              </a>
-            </li>
-            <li className={activeSection === 'settings' ? 'active' : ''}>
-              <a href="#" onClick={(e) => { e.preventDefault(); setActiveSection('settings'); }}>
-                <i className='bx bx-cog'></i>
-                <span>System Settings</span>
-              </a>
-            </li>
-          </ul>
-        </nav>
-        <div className="admin-sidebar-footer">
-          <button className="logout-button" onClick={handleLogout}>
-            <i className='bx bx-log-out'></i>
-            <span>Logout</span>
-          </button>
-        </div>
-      </div>
+      <AdminNavbar 
+        activeSection={activeSection} 
+        setActiveSection={setActiveSection} 
+      />
       
       <div className="admin-main-content">
-        <header className="admin-content-header">
-          <h1>
-            {activeSection === 'home' && 'Dashboard'}
-            {activeSection === 'puc' && 'PUC Records'}
-            {activeSection === 'visitor-logs' && 'Visitor Logs'}
-            {activeSection === 'approvals' && 'Approvals'}
-            {activeSection === 'blacklisted' && 'Blacklisted'}
-            {activeSection === 'logs' && 'Audit Logs'}
-            {activeSection === 'reports' && 'Reports'}
-            {activeSection === 'users' && 'User Management'}
-            {activeSection === 'settings' && 'System Settings'}
-          </h1>
-          
-          {connectionStatus && (
-            <div className={`connection-status ${connectionStatus.status}`}>
-              {connectionStatus.status === 'success' ? (
-                <i className='bx bx-check-circle'></i>
-              ) : (
-                <i className='bx bx-error-circle'></i>
-              )}
-              <span>{connectionStatus.message}</span>
-            </div>
-          )}
-        </header>
+        <ContentHeader 
+          activeSection={activeSection} 
+          connectionStatus={connectionStatus} 
+        />
         
         <div className="admin-content-body">
-          {activeSection === 'home' && (
-            <div className="welcome-section">
-              <h2>System Overview</h2>
-              
-              {loading.stats ? (
-                <div className="loading-indicator">Loading statistics...</div>
-              ) : error.stats ? (
-                <div className="error-message">{error.stats}</div>
-              ) : dashboardStats ? (
-                <div className="stats-grid">
-                  <div className="stat-card">
-                    <i className='bx bx-user-circle stat-icon'></i>
-                    <div className="stat-info">
-                      <h3>Users</h3>
-                      <p className="stat-value">{dashboardStats.user_count}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="stat-card">
-                    <i className='bx bx-user-pin stat-icon'></i>
-                    <div className="stat-info">
-                      <h3>PUC Records</h3>
-                      <p className="stat-value">{dashboardStats.pupc_count}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="stat-card">
-                    <i className='bx bx-list-check stat-icon'></i>
-                    <div className="stat-info">
-                      <h3>Visitor Logs</h3>
-                      <p className="stat-value">{dashboardStats.visitor_log_count}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="stat-card">
-                    <i className='bx bx-check-shield stat-icon'></i>
-                    <div className="stat-info">
-                      <h3>Pending Approvals</h3>
-                      <p className="stat-value">{dashboardStats.pending_approval_count}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="stat-card">
-                    <i className='bx bx-block stat-icon'></i>
-                    <div className="stat-info">
-                      <h3>Blacklisted</h3>
-                      <p className="stat-value">{dashboardStats.blacklisted_count}</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <p>No statistics available</p>
-              )}
-            </div>
-          )}
-          
-          {activeSection === 'puc' && (
-            <div className="puc-section">
-              <h2>PUC Records</h2>
-              
-              {loading.pucs ? (
-                <div className="loading-indicator">Loading PUC records...</div>
-              ) : error.pucs ? (
-                <div className="error-message">{error.pucs}</div>
-              ) : pucs.length > 0 ? (
-                <div className="data-table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Gender</th>
-                        <th>Age</th>
-                        <th>Status</th>
-                        <th>Category</th>
-                        <th>Arrest Date</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pucs.map(puc => (
-                        <tr key={puc.pupc_id}>
-                          <td>{puc.pupc_id}</td>
-                          <td>{`${puc.first_name} ${puc.last_name}`}</td>
-                          <td>{puc.gender}</td>
-                          <td>{puc.age}</td>
-                          <td>{puc.status}</td>
-                          <td>{puc.crime_category}</td>
-                          <td>{new Date(puc.arrest_date).toLocaleDateString()}</td>
-                          <td>
-                            <button className="action-btn view-btn">
-                              <i className='bx bx-show'></i>
-                            </button>
-                            <button className="action-btn edit-btn">
-                              <i className='bx bx-edit'></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="placeholder-content">
-                  <i className='bx bx-user-pin placeholder-icon'></i>
-                  <p>No PUC records found</p>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {activeSection === 'visitor-logs' && (
-            <div className="visitor-logs-section">
-              <h2>Visitor Logs</h2>
-              
-              {loading.visitorLogs ? (
-                <div className="loading-indicator">Loading visitor logs...</div>
-              ) : error.visitorLogs ? (
-                <div className="error-message">{error.visitorLogs}</div>
-              ) : visitorLogs.length > 0 ? (
-                <div className="data-table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Visitor</th>
-                        <th>PUC</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Purpose</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {visitorLogs.map(log => (
-                        <tr key={log.visitor_log_id}>
-                          <td>{log.visitor_log_id}</td>
-                          <td>{`${log.visitor_first_name} ${log.visitor_last_name}`}</td>
-                          <td>{`${log.pupc_first_name} ${log.pupc_last_name}`}</td>
-                          <td>{new Date(log.visit_date).toLocaleDateString()}</td>
-                          <td>{log.visit_time}</td>
-                          <td>{log.purpose}</td>
-                          <td>{log.approval_status}</td>
-                          <td>
-                            <button className="action-btn view-btn">
-                              <i className='bx bx-show'></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="placeholder-content">
-                  <i className='bx bx-list-check placeholder-icon'></i>
-                  <p>No visitor logs found</p>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {activeSection === 'approvals' && (
-            <div className="approvals-section">
-              <h2>Visitor Request Approvals</h2>
-              
-              {loading.approvals ? (
-                <div className="loading-indicator">Loading approval requests...</div>
-              ) : error.approvals ? (
-                <div className="error-message">{error.approvals}</div>
-              ) : approvals.length > 0 ? (
-                <div className="data-table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Visitor</th>
-                        <th>PUC</th>
-                        <th>Date</th>
-                        <th>Time</th>
-                        <th>Purpose</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {approvals.map(approval => (
-                        <tr key={approval.visitor_log_id}>
-                          <td>{approval.visitor_log_id}</td>
-                          <td>{`${approval.visitor_first_name} ${approval.visitor_last_name}`}</td>
-                          <td>{`${approval.pupc_first_name} ${approval.pupc_last_name}`}</td>
-                          <td>{new Date(approval.visit_date).toLocaleDateString()}</td>
-                          <td>{approval.visit_time}</td>
-                          <td>{approval.purpose}</td>
-                          <td>
-                            <button className="action-btn approve-btn">
-                              <i className='bx bx-check'></i>
-                            </button>
-                            <button className="action-btn reject-btn">
-                              <i className='bx bx-x'></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="placeholder-content">
-                  <i className='bx bx-check-shield placeholder-icon'></i>
-                  <p>No pending approvals</p>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {activeSection === 'blacklisted' && (
-            <div className="blacklisted-section">
-              <h2>Blacklisted Visitors</h2>
-              
-              {loading.blacklisted ? (
-                <div className="loading-indicator">Loading blacklisted visitors...</div>
-              ) : error.blacklisted ? (
-                <div className="error-message">{error.blacklisted}</div>
-              ) : blacklisted.length > 0 ? (
-                <div className="data-table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Visitor</th>
-                        <th>PUC</th>
-                        <th>Reason</th>
-                        <th>Added Date</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {blacklisted.map(item => (
-                        <tr key={item.black_id}>
-                          <td>{item.black_id}</td>
-                          <td>{`${item.visitor_first_name} ${item.visitor_last_name}`}</td>
-                          <td>{`${item.pupc_first_name} ${item.pupc_last_name}`}</td>
-                          <td>{item.reason}</td>
-                          <td>{new Date(item.added_at).toLocaleDateString()}</td>
-                          <td>
-                            <button className="action-btn view-btn">
-                              <i className='bx bx-show'></i>
-                            </button>
-                            <button className="action-btn remove-btn">
-                              <i className='bx bx-trash'></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="placeholder-content">
-                  <i className='bx bx-block placeholder-icon'></i>
-                  <p>No blacklisted visitors</p>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {activeSection === 'logs' && (
-            <div className="logs-section">
-              <h2>Audit Logs</h2>
-              
-              {loading.auditLogs ? (
-                <div className="loading-indicator">Loading audit logs...</div>
-              ) : error.auditLogs ? (
-                <div className="error-message">{error.auditLogs}</div>
-              ) : auditLogs.length > 0 ? (
-                <div className="data-table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Event Type</th>
-                        <th>Time</th>
-                        <th>IP Address</th>
-                        <th>Notes</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {auditLogs.map(log => (
-                        <tr key={log.audit_id}>
-                          <td>{log.audit_id}</td>
-                          <td>{log.username}</td>
-                          <td>{log.event_type}</td>
-                          <td>{new Date(log.event_time).toLocaleString()}</td>
-                          <td>{log.ip_address}</td>
-                          <td>{log.notes}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="placeholder-content">
-                  <i className='bx bx-history placeholder-icon'></i>
-                  <p>No audit logs found</p>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {activeSection === 'reports' && (
-            <div className="reports-section">
-              <h2>Reports</h2>
-              <div className="placeholder-content">
-                <i className='bx bx-bar-chart-alt-2 placeholder-icon'></i>
-                <p>Reports will be displayed here</p>
-              </div>
-            </div>
-          )}
-          
-          {activeSection === 'users' && (
-            <div className="users-section">
-              <h2>User Management</h2>
-              
-              {loading.users ? (
-                <div className="loading-indicator">Loading users...</div>
-              ) : error.users ? (
-                <div className="error-message">{error.users}</div>
-              ) : users.length > 0 ? (
-                <div className="data-table-container">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Role</th>
-                        <th>Created</th>
-                        <th>Last Login</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {users.map(user => (
-                        <tr key={user.user_id}>
-                          <td>{user.user_id}</td>
-                          <td>{user.username}</td>
-                          <td>{user.role_name}</td>
-                          <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                          <td>{user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
-                          <td>
-                            <button className="action-btn edit-btn">
-                              <i className='bx bx-edit'></i>
-                            </button>
-                            <button className="action-btn delete-btn">
-                              <i className='bx bx-trash'></i>
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="placeholder-content">
-                  <i className='bx bx-group placeholder-icon'></i>
-                  <p>No users found</p>
-                </div>
-              )}
-            </div>
-          )}
-          
-          {activeSection === 'settings' && (
-            <div className="settings-section">
-              <h2>System Settings</h2>
-              <div className="placeholder-content">
-                <i className='bx bx-cog placeholder-icon'></i>
-                <p>System settings will be displayed here</p>
-              </div>
-            </div>
-          )}
+          {renderContent()}
         </div>
       </div>
     </div>

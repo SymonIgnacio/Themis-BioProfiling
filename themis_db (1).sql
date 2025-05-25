@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 24, 2025 at 09:35 PM
+-- Generation Time: May 25, 2025 at 06:36 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -88,6 +88,41 @@ INSERT INTO `crimecategories` (`category_id`, `name`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `crimetypes`
+--
+
+CREATE TABLE `crimetypes` (
+  `crime_id` int(11) NOT NULL,
+  `category_id` int(11) DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
+  `law_reference` varchar(50) NOT NULL,
+  `description` text DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `crimetypes`
+--
+
+INSERT INTO `crimetypes` (`crime_id`, `category_id`, `name`, `law_reference`, `description`) VALUES
+(1, 1, 'Murder', 'Art. 248, RPC', 'Unlawful killing with qualifying circumstances'),
+(2, 1, 'Homicide', 'Art. 249, RPC', 'Unlawful killing without qualifying circumstances'),
+(3, 1, 'Parricide', 'Art. 246, RPC', 'Killing of close family member'),
+(4, 1, 'Physical Injuries', 'Arts. 262–266, RPC', 'Causing bodily harm'),
+(5, 1, 'Rape', 'RA 8353', 'Sexual assault under the Anti-Rape Law of 1997'),
+(6, 2, 'Robbery', 'Art. 293, RPC', 'Taking property with violence or intimidation'),
+(7, 2, 'Theft', 'Art. 308, RPC', 'Taking property without violence or intimidation'),
+(8, 2, 'Estafa (Swindling)', 'Art. 315, RPC', 'Deceit to defraud another'),
+(9, 2, 'Arson', 'PD 1613', 'Intentional burning of property'),
+(10, 2, 'Fencing', 'PD 1612', 'Dealing with stolen goods'),
+(11, 3, 'Drug Possession', 'Sec. 11, RA 9165', 'Possession of dangerous drugs'),
+(12, 3, 'Drug Use', 'Sec. 15, RA 9165', 'Use of illegal drugs'),
+(13, 3, 'Drug Trafficking', 'Sec. 5, RA 9165', 'Selling, delivering, or giving away drugs'),
+(14, 3, 'Maintaining Drug Den', 'Sec. 6, RA 9165', 'Keeping a place for drug use'),
+(15, 3, 'Planting of Evidence', 'Sec. 29, RA 9165', 'Framing someone with planted drugs');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `notifications`
 --
 
@@ -127,16 +162,17 @@ CREATE TABLE `pupcs` (
   `status` varchar(50) DEFAULT NULL,
   `category_id` int(11) DEFAULT NULL,
   `mugshot_path` varchar(255) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `crime_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `pupcs`
 --
 
-INSERT INTO `pupcs` (`pupc_id`, `first_name`, `last_name`, `gender`, `age`, `arrest_date`, `status`, `category_id`, `mugshot_path`, `created_at`) VALUES
-(1, 'Juan', 'Dela Cruz', 'Male', 30, '2024-05-01', 'Detained', 1, NULL, '2025-05-25 03:20:38'),
-(2, 'Maria', 'Santos', 'Female', 25, '2024-04-15', 'Released', 3, NULL, '2025-05-25 03:20:38');
+INSERT INTO `pupcs` (`pupc_id`, `first_name`, `last_name`, `gender`, `age`, `arrest_date`, `status`, `category_id`, `mugshot_path`, `created_at`, `crime_id`) VALUES
+(1, 'Juan', 'Dela Cruz', 'Male', 30, '2024-05-01', 'Detained', 1, NULL, '2025-05-25 03:20:38', 1),
+(2, 'Maria', 'Santos', 'Female', 25, '2024-04-15', 'Released', 3, NULL, '2025-05-25 03:20:38', 11);
 
 -- --------------------------------------------------------
 
@@ -307,6 +343,13 @@ ALTER TABLE `crimecategories`
   ADD UNIQUE KEY `name` (`name`);
 
 --
+-- Indexes for table `crimetypes`
+--
+ALTER TABLE `crimetypes`
+  ADD PRIMARY KEY (`crime_id`),
+  ADD KEY `category_id` (`category_id`);
+
+--
 -- Indexes for table `notifications`
 --
 ALTER TABLE `notifications`
@@ -319,7 +362,8 @@ ALTER TABLE `notifications`
 --
 ALTER TABLE `pupcs`
   ADD PRIMARY KEY (`pupc_id`),
-  ADD KEY `category_id` (`category_id`);
+  ADD KEY `category_id` (`category_id`),
+  ADD KEY `crime_id` (`crime_id`);
 
 --
 -- Indexes for table `pupcstatushistory`
@@ -391,6 +435,12 @@ ALTER TABLE `crimecategories`
   MODIFY `category_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `crimetypes`
+--
+ALTER TABLE `crimetypes`
+  MODIFY `crime_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
@@ -456,6 +506,12 @@ ALTER TABLE `blacklist`
   ADD CONSTRAINT `blacklist_ibfk_2` FOREIGN KEY (`visitor_id`) REFERENCES `visitors` (`visitor_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `crimetypes`
+--
+ALTER TABLE `crimetypes`
+  ADD CONSTRAINT `crimetypes_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `crimecategories` (`category_id`);
+
+--
 -- Constraints for table `notifications`
 --
 ALTER TABLE `notifications`
@@ -466,7 +522,8 @@ ALTER TABLE `notifications`
 -- Constraints for table `pupcs`
 --
 ALTER TABLE `pupcs`
-  ADD CONSTRAINT `pupcs_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `crimecategories` (`category_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `pupcs_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `crimecategories` (`category_id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `pupcs_ibfk_2` FOREIGN KEY (`crime_id`) REFERENCES `crimetypes` (`crime_id`);
 
 --
 -- Constraints for table `pupcstatushistory`

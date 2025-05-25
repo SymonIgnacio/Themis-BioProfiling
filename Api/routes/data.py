@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, current_app, request
 import traceback
 from sqlalchemy.orm import joinedload
 
-from db import db, User, PUPC, Visitor, VisitorLog, Blacklist, AuditLog, CrimeCategory, Role
+from db import db, User, PUPC, Visitor, VisitorLog, Blacklist, AuditLog, CrimeCategory, Role, CrimeType
 
 # Create blueprint
 data_bp = Blueprint('data', __name__)
@@ -38,8 +38,17 @@ def get_pucs():
         search_term = request.args.get('search', '')
         
         # Base query
-        query = db.session.query(PUPC, CrimeCategory.name.label('crime_category'))\
-            .outerjoin(CrimeCategory, PUPC.category_id == CrimeCategory.category_id)
+        query = db.session.query(
+            PUPC, 
+            CrimeCategory.name.label('crime_category'),
+            CrimeType.name.label('crime_type_name'),
+            CrimeType.law_reference.label('law_reference'),
+            CrimeType.description.label('law_description')
+        ).outerjoin(
+            CrimeCategory, PUPC.category_id == CrimeCategory.category_id
+        ).outerjoin(
+            CrimeType, PUPC.crime_id == CrimeType.crime_id
+        )
         
         # Apply search filter if provided
         if search_term:
@@ -56,7 +65,7 @@ def get_pucs():
         pucs = query.all()
         
         result = []
-        for pupc, crime_category in pucs:
+        for pupc, crime_category, crime_type_name, law_reference, law_description in pucs:
             pupc_dict = {
                 'pupc_id': pupc.pupc_id,
                 'first_name': pupc.first_name,
@@ -67,6 +76,10 @@ def get_pucs():
                 'status': pupc.status,
                 'category_id': pupc.category_id,
                 'crime_category': crime_category,
+                'crime_id': pupc.crime_id,
+                'crime_type_name': crime_type_name,
+                'law_reference': law_reference,
+                'law_description': law_description,
                 'mugshot_path': pupc.mugshot_path,
                 'created_at': pupc.created_at
             }
