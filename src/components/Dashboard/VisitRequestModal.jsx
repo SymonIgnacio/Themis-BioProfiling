@@ -1,37 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
 
-const VisitRequestModal = ({ isOpen, onClose, onSubmit }) => {
-  const [pucs, setPucs] = useState([]);
-  const [loading, setLoading] = useState(true);
+const VisitRequestModal = ({ isOpen, onClose, onSubmit, visitorId }) => {
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
   const [formData, setFormData] = useState({
-    pupc_id: '',
+    pupc_name: '',
+    pupc_id: '1', // Default to a valid PUC ID
     visit_date: '',
     visit_time: '',
-    purpose: ''
+    purpose: '',
+    visitor_id: visitorId || ''
   });
-
-  useEffect(() => {
-    const fetchPucs = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/pucs', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setPucs(response.data);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching PUCs:', err);
-        setError('Failed to load PUC data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPucs();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -60,21 +40,16 @@ const VisitRequestModal = ({ isOpen, onClose, onSubmit }) => {
           
           <form onSubmit={handleSubmit} className="visit-form">
             <div className="form-group">
-              <label htmlFor="pupc_id">Select Person to Visit:</label>
-              <select 
-                id="pupc_id" 
-                name="pupc_id" 
-                value={formData.pupc_id} 
+              <label htmlFor="pupc_name">Name of Person to Visit:</label>
+              <input 
+                type="text" 
+                id="pupc_name" 
+                name="pupc_name" 
+                value={formData.pupc_name} 
                 onChange={handleInputChange}
                 required
-              >
-                <option value="">Select PUC</option>
-                {pucs.map(puc => (
-                  <option key={puc.pupc_id} value={puc.pupc_id}>
-                    {puc.first_name} {puc.last_name} - {puc.status}
-                  </option>
-                ))}
-              </select>
+                placeholder="Enter the name of the person you wish to visit"
+              />
             </div>
             
             <div className="form-group">

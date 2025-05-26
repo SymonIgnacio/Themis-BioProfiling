@@ -185,6 +185,49 @@
   background-color: #2980b9;
 }
 
+/* Tabs styling */
+.visits-tabs {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  color: #7f8c8d;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.tab-button.active {
+  color: #3498db;
+  border-bottom-color: #3498db;
+}
+
+.tab-button:hover {
+  color: #3498db;
+}
+
+.badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background-color: #e74c3c;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .visits-table-container {
   overflow-x: auto;
 }
@@ -323,6 +366,7 @@
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  box-sizing: border-box;
 }
 
 .form-group textarea {
@@ -367,6 +411,36 @@
   background-color: #7f8c8d;
 }
 
+/* Password input container */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container input {
+  flex: 1;
+  padding-right: 70px; /* Make room for the button */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 3px;
+}
+
+.password-toggle:hover {
+  background-color: #f0f0f0;
+}
+
 /* Account Section Styles */
 .account-section {
   background-color: white;
@@ -408,4 +482,13 @@
   padding: 10px 15px;
   border-radius: 4px;
   margin-bottom: 15px;
+}
+
+.loading-indicator {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+  color: #3498db;
+  font-size: 1.1rem;
 }

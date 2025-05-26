@@ -9,7 +9,8 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
     email: '',
-    fullName: ''
+    firstName: '',
+    lastName: ''
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -46,11 +47,16 @@ const Signup = () => {
     setLoading(true);
 
     try {
+      // Combine first and last name for fullName
+      const fullName = `${formData.firstName} ${formData.lastName}`.trim();
+      
       const result = await signup(
         formData.username,
         formData.password,
         formData.email,
-        formData.fullName
+        fullName,
+        formData.firstName,
+        formData.lastName
       );
       
       if (result.success) {
@@ -78,12 +84,24 @@ const Signup = () => {
         
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="fullName">Full Name</label>
+            <label htmlFor="firstName">First Name</label>
             <input
               type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="lastName">Last Name</label>
+            <input
+              type="text"
+              id="lastName"
+              name="lastName"
+              value={formData.lastName}
               onChange={handleChange}
               required
             />

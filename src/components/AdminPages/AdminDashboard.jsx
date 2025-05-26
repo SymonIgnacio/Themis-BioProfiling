@@ -48,7 +48,11 @@ const AdminDashboard = () => {
 
   // Test database connection
   useEffect(() => {
-    axios.get('http://localhost:5000/api/test-connection')
+    const token = localStorage.getItem('token');
+    
+    axios.get('http://localhost:5000/api/test-connection', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(response => {
         setConnectionStatus({ status: 'success', message: response.data.message });
       })
@@ -67,7 +71,11 @@ const AdminDashboard = () => {
   // Unified data fetching function
   const fetchData = (section, endpoint, dataKey, loadingKey, errorMessage, setter) => {
     setLoading(prev => ({ ...prev, [loadingKey]: true }));
-    axios.get(`http://localhost:5000/api/${endpoint}`)
+    const token = localStorage.getItem('token');
+    
+    axios.get(`http://localhost:5000/api/${endpoint}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
       .then(response => {
         setter(response.data);
         setError(prev => ({ ...prev, [loadingKey]: null }));
@@ -139,9 +147,12 @@ const AdminDashboard = () => {
 
   const handleSavePUC = async (formData) => {
     try {
+      const token = localStorage.getItem('token');
+      const headers = { Authorization: `Bearer ${token}` };
+      
       // For adding a new PUC
       if (modalMode === 'add') {
-        const response = await axios.post('http://localhost:5000/api/pucs', formData);
+        const response = await axios.post('http://localhost:5000/api/pucs', formData, { headers });
         
         // Add the new PUC to the state
         setPucs([...pucs, response.data]);
@@ -150,7 +161,7 @@ const AdminDashboard = () => {
       } 
       // For editing an existing PUC
       else if (modalMode === 'edit' && selectedPUC) {
-        const response = await axios.put(`http://localhost:5000/api/pucs/${selectedPUC.pupc_id}`, formData);
+        const response = await axios.put(`http://localhost:5000/api/pucs/${selectedPUC.pupc_id}`, formData, { headers });
         
         // Update the PUCs state with the updated record
         setPucs(pucs.map(puc => 

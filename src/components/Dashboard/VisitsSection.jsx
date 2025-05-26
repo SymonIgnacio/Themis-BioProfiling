@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../context/AuthContext';
 import VisitRequestModal from './VisitRequestModal';
 
 const VisitsSection = () => {
-  const [visits, setVisits] = useState([]);
+  const { currentUser } = useAuth();
+  const [activeTab, setActiveTab] = useState('visits');
+  const [approvedVisits, setApprovedVisits] = useState([]);
+  const [pendingVisits, setPendingVisits] = useState([]);
+  const [rejectedVisits, setRejectedVisits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
@@ -11,11 +16,22 @@ const VisitsSection = () => {
   useEffect(() => {
     const fetchVisits = async () => {
       try {
+        setLoading(true);
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/my-visits', {
+        
+        // Fetch all visits for the current user
+        const response = await axios.get('http://localhost:5000/api/visitor-logs', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setVisits(response.data);
+        
+        // Filter visits by status
+        const approved = response.data.filter(visit => visit.approval_status === 'Approved');
+        const pending = response.data.filter(visit => visit.approval_status === 'Pending');
+        const rejected = response.data.filter(visit => visit.approval_status === 'Rejected');
+        
+        setApprovedVisits(approved);
+        setPendingVisits(pending);
+        setRejectedVisits(rejected);
         setError(null);
       } catch (err) {
         console.error('Error fetching visits:', err);
@@ -40,15 +56,25 @@ const VisitsSection = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/visit-requests', visitData, {
+      
+      // Send visit request data
+      await axios.post('http://localhost:5000/api/create-visit', visitData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       // Refresh visits list
-      const response = await axios.get('http://localhost:5000/api/my-visits', {
+      const response = await axios.get('http://localhost:5000/api/visitor-logs', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setVisits(response.data);
+      
+      // Filter visits by status
+      const approved = response.data.filter(visit => visit.approval_status === 'Approved');
+      const pending = response.data.filter(visit => visit.approval_status === 'Pending');
+      const rejected = response.data.filter(visit => visit.approval_status === 'Rejected');
+      
+      setApprovedVisits(approved);
+      setPendingVisits(pending);
+      setRejectedVisits(rejected);
       setModalOpen(false);
       setError(null);
     } catch (err) {
@@ -57,6 +83,48 @@ const VisitsSection = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderVisitsTable = (visitsData) => {
+    if (!Array.isArray(visitsData) || visitsData.length === 0) {
+      return (
+        <div className="no-visits-message">
+          <i className='bx bx-calendar-x'></i>
+          <p>No visit requests found. Click "Request Visit" to schedule a visit.</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="visits-table-container">
+        <table className="visits-table">
+          <thead>
+            <tr>
+              <th>PUC Name</th>
+              <th>Visit Date</th>
+              <th>Visit Time</th>
+              <th>Purpose</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visitsData.map((visit) => (
+              <tr key={visit.visitor_log_id}>
+                <td>{visit.pupc_name}</td>
+                <td>{new Date(visit.visit_date).toLocaleDateString()}</td>
+                <td>{visit.visit_time}</td>
+                <td>{visit.purpose}</td>
+                <td>
+                  <span className={`status-badge status-${visit.approval_status.toLowerCase()}`}>
+                    {visit.approval_status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
   };
 
   return (
@@ -70,43 +138,39 @@ const VisitsSection = () => {
 
       {error && <div className="error-message">{error}</div>}
       
-      {loading ? (
-        <div className="loading-indicator">Loading visits...</div>
-      ) : visits.length > 0 ? (
-        <div className="visits-table-container">
-          <table className="visits-table">
-            <thead>
-              <tr>
-                <th>PUC Name</th>
-                <th>Visit Date</th>
-                <th>Visit Time</th>
-                <th>Purpose</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visits.map((visit) => (
-                <tr key={visit.visitor_log_id}>
-                  <td>{visit.pupc_first_name} {visit.pupc_last_name}</td>
-                  <td>{new Date(visit.visit_date).toLocaleDateString()}</td>
-                  <td>{visit.visit_time}</td>
-                  <td>{visit.purpose}</td>
-                  <td>
-                    <span className={`status-badge status-${visit.approval_status.toLowerCase()}`}>
-                      {visit.approval_status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="no-visits-message">
-          <i className='bx bx-calendar-x'></i>
-          <p>No visit requests found. Click "Request Visit" to schedule a visit.</p>
-        </div>
-      )}
+      <div className="visits-tabs">
+        <button 
+          className={`tab-button ${activeTab === 'visits' ? 'active' : ''}`}
+          onClick={() => setActiveTab('visits')}
+        >
+          Visits
+          {approvedVisits.length > 0 && <span className="badge">{approvedVisits.length}</span>}
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'pending' ? 'active' : ''}`}
+          onClick={() => setActiveTab('pending')}
+        >
+          Pending
+          {pendingVisits.length > 0 && <span className="badge">{pendingVisits.length}</span>}
+        </button>
+        <button 
+          className={`tab-button ${activeTab === 'rejected' ? 'active' : ''}`}
+          onClick={() => setActiveTab('rejected')}
+        >
+          Rejected
+          {rejectedVisits.length > 0 && <span className="badge">{rejectedVisits.length}</span>}
+        </button>
+      </div>
+      
+      <div className="tab-content">
+        {loading ? (
+          <div className="loading-indicator">Loading visits...</div>
+        ) : (
+          activeTab === 'visits' ? renderVisitsTable(approvedVisits) : 
+          activeTab === 'pending' ? renderVisitsTable(pendingVisits) : 
+          renderVisitsTable(rejectedVisits)
+        )}
+      </div>
 
       {modalOpen && (
         <VisitRequestModal 

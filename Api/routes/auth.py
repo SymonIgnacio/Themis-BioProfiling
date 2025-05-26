@@ -4,6 +4,7 @@ import jwt
 import datetime
 import traceback
 from functools import wraps
+from sqlalchemy import text
 
 from db import db, User
 
@@ -46,13 +47,41 @@ def signup():
         # Hash the password
         hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
         
-        # Create new user with email and full_name
+        # Get first and last name directly from request
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        
+        # If not provided, extract from full_name
+        if not first_name or not last_name:
+            full_name = data.get('full_name') or data.get('fullName') or data['username']
+            name_parts = full_name.split(' ', 1)
+            first_name = first_name or name_parts[0]
+            last_name = last_name or (name_parts[1] if len(name_parts) > 1 else '')
+        
+        # Create visitor record first
+        visitor_result = db.session.execute(text("""
+            INSERT INTO visitors (first_name, last_name, registered_at)
+            VALUES (:first_name, :last_name, NOW())
+        """), {
+            "first_name": first_name,
+            "last_name": last_name
+        })
+        
+        # Get the new visitor_id
+        visitor_id_result = db.session.execute(text("SELECT LAST_INSERT_ID()"))
+        visitor_id = visitor_id_result.scalar()
+        
+        # Combine first and last name for full_name if not provided
+        full_name = data.get('full_name') or f"{first_name} {last_name}".strip()
+        
+        # Create new user with visitor_id
         new_user = User(
             username=data['username'],
             role_id=3,  # Visitor role
             password_hash=hashed_password,
             email=data.get('email'),
-            full_name=data.get('full_name'),
+            full_name=full_name,
+            visitor_id=visitor_id,
             created_at=datetime.datetime.utcnow()
         )
         
@@ -62,6 +91,7 @@ def signup():
         
         return jsonify({'message': 'User created successfully!'}), 201
     except Exception as e:
+        db.session.rollback()
         current_app.logger.error(f"Error in signup: {str(e)}")
         current_app.logger.error(traceback.format_exc())
         return jsonify({'message': f'An error occurred during signup: {str(e)}'}), 500
@@ -102,12 +132,22 @@ def login():
             'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=24)
         }, current_app.config['SECRET_KEY'], algorithm="HS256")
         
-        return jsonify({
+        # Get user data safely
+        user_data = {
             'token': token,
             'user_id': user.user_id,
             'username': user.username,
             'role_id': user.role_id
-        })
+        }
+        
+        # Add visitor_id only if it exists
+        try:
+            if hasattr(user, 'visitor_id') and user.visitor_id is not None:
+                user_data['visitor_id'] = user.visitor_id
+        except:
+            pass
+        
+        return jsonify(user_data)
     except Exception as e:
         current_app.logger.error(f"Error in login: {str(e)}")
         current_app.logger.error(traceback.format_exc())
@@ -117,11 +157,22 @@ def login():
 @token_required
 def get_profile(current_user):
     try:
-        return jsonify({
+        profile_data = {
             'user_id': current_user.user_id,
             'username': current_user.username,
-            'role_id': current_user.role_id
-        })
+            'role_id': current_user.role_id,
+            'email': current_user.email,
+            'full_name': current_user.full_name
+        }
+        
+        # Add visitor_id only if it exists
+        try:
+            if hasattr(current_user, 'visitor_id') and current_user.visitor_id is not None:
+                profile_data['visitor_id'] = current_user.visitor_id
+        except:
+            pass
+            
+        return jsonify(profile_data)
     except Exception as e:
         current_app.logger.error(f"Error in get_profile: {str(e)}")
         current_app.logger.error(traceback.format_exc())

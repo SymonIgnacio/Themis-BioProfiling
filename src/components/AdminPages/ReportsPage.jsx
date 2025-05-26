@@ -10,7 +10,10 @@ const ReportsPage = () => {
   useEffect(() => {
     const fetchReportData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/reports/status-changes');
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/api/reports/status-changes', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setReportData(response.data);
         setError(null);
       } catch (err) {

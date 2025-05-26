@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './AdminDashboard.css';
+import axios from 'axios';
 
 const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
   const [formData, setFormData] = useState({
@@ -24,9 +25,11 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
   useEffect(() => {
     const fetchCrimeTypes = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/crimetypes');
-        const data = await response.json();
-        setCrimeTypes(data);
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5000/api/crimetypes', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setCrimeTypes(response.data || []);
       } catch (err) {
         console.error('Error fetching crime types:', err);
         // Fallback to hardcoded crime types if API fails
@@ -145,7 +148,9 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
                 <div className="info-row">
                   <div className="info-item">
                     <span className="label">Status:</span>
-                    <span className="value status-badge">{puc.status || 'N/A'}</span>
+                    <span className={`value status-badge status-${puc.status?.toLowerCase().replace(/\s+/g, '-')}`}>
+                      {puc.status || 'N/A'}
+                    </span>
                   </div>
                   <div className="info-item">
                     <span className="label">Category:</span>
@@ -170,7 +175,7 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
                 <div className="info-row">
                   <div className="info-item">
                     <span className="label">Law Description:</span>
-                    <span className="value">{puc.law_description || 'N/A'}</span>
+                    <span className="value">{puc.description || 'N/A'}</span>
                   </div>
                 </div>
                 
@@ -304,7 +309,7 @@ const PUCModal = ({ puc, isOpen, onClose, onSave, mode }) => {
                     onChange={handleInputChange}
                   >
                     <option value="">Select Crime Type</option>
-                    {crimeTypes.map(type => (
+                    {Array.isArray(crimeTypes) && crimeTypes.map(type => (
                       <option key={type.crime_id} value={type.crime_id}>
                         {type.name} - {type.law_reference}
                       </option>

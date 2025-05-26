@@ -58,13 +58,15 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const signup = async (username, password, email, fullName) => {
+  const signup = async (username, password, email, fullName, firstName, lastName) => {
     try {
       await axios.post('http://localhost:5000/api/signup', {
         username,
         password,
         email,
-        full_name: fullName
+        full_name: fullName,
+        first_name: firstName,
+        last_name: lastName
       });
       
       return { success: true };

@@ -1,55 +1,48 @@
-/* ReportsPage specific styles */
 .reports-container {
-  padding: 10px;
+  padding: 20px;
 }
 
 .reports-header {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 .reports-header h2 {
-  margin-bottom: 5px;
-  color: #333;
-  font-size: 1.5rem;
+  margin: 0 0 5px 0;
+  color: #2c3e50;
 }
 
 .reports-header p {
-  color: #666;
-  font-size: 0.9rem;
   margin: 0;
+  color: #7f8c8d;
 }
 
 .reports-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+  gap: 20px;
 }
 
 .report-card {
   background-color: white;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 15px;
-  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
 }
 
 .report-card h3 {
   margin-top: 0;
-  margin-bottom: 10px;
-  color: #333;
-  font-size: 1rem;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 8px;
+  margin-bottom: 15px;
+  color: #2c3e50;
+  font-size: 1.2rem;
 }
 
 .chart-container {
-  height: 200px;
+  height: 300px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-/* Bar Chart Styles */
 .bar-chart {
   width: 100%;
   display: flex;
@@ -63,19 +56,20 @@
 }
 
 .chart-label {
-  width: 100px;
-  font-size: 0.85rem;
-  color: #555;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  width: 120px;
+  font-size: 0.9rem;
+  color: #34495e;
 }
 
 .chart-bar-container {
   flex: 1;
+  height: 25px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  height: 20px;
 }
 
 .chart-bar {
@@ -85,13 +79,13 @@
 }
 
 .chart-value {
-  margin-left: 8px;
-  font-weight: bold;
-  color: #333;
-  font-size: 0.85rem;
+  position: absolute;
+  right: 10px;
+  color: #fff;
+  font-weight: 500;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
-/* Pie Chart Styles */
 .pie-chart-container {
   display: flex;
   align-items: center;
@@ -100,57 +94,50 @@
 }
 
 .pie-chart {
-  width: 150px;
-  height: 150px;
+  width: 200px;
+  height: 200px;
 }
 
 .pie-chart-svg {
-  width: 100%;
-  height: 100%;
   transform: rotate(-90deg);
 }
 
 .pie-legend {
   flex: 1;
-  padding-left: 15px;
+  margin-left: 20px;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .legend-color {
-  width: 12px;
-  height: 12px;
+  width: 15px;
+  height: 15px;
   border-radius: 3px;
-  margin-right: 6px;
+  margin-right: 8px;
 }
 
 .legend-label {
-  font-size: 0.85rem;
-  color: #555;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.9rem;
+  color: #34495e;
 }
 
-/* Table Styles */
 .report-table-container {
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
 }
 
 .report-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.85rem;
 }
 
 .report-table th,
 .report-table td {
-  padding: 8px;
+  padding: 10px;
   text-align: left;
   border-bottom: 1px solid #eee;
 }
@@ -161,32 +148,35 @@
   font-weight: 600;
   position: sticky;
   top: 0;
-  font-size: 0.8rem;
+  z-index: 1;
 }
 
 .report-table tr:hover {
   background-color: #f5f5f5;
 }
 
-.no-data {
-  text-align: center;
-  color: #999;
-  font-style: italic;
-  padding: 15px 0;
-  font-size: 0.85rem;
-}
-
-/* Status Badge */
 .status-badge {
   display: inline-block;
-  padding: 3px 6px;
-  border-radius: 3px;
-  font-size: 0.75rem;
-  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: white;
 }
 
-.status-in-custody {
+.status-pending {
+  background-color: #f39c12;
+}
+
+.status-approved {
+  background-color: #2ecc71;
+}
+
+.status-rejected {
+  background-color: #e74c3c;
+}
+
+.status-in.custody {
   background-color: #e74c3c;
 }
 
@@ -198,10 +188,8 @@
   background-color: #f39c12;
 }
 
-.status-pending {
-  background-color: #3498db;
-}
-
-.status-unknown {
-  background-color: #95a5a6;
+.no-data {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 20px;
 }

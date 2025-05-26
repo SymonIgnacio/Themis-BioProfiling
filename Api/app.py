@@ -10,6 +10,8 @@ from db import init_db
 from routes.auth import auth_bp
 from routes.dashboard import dashboard_bp
 from routes.data import data_bp
+from routes.visits import visits_bp
+from routes.admin import admin_bp
 
 def create_app():
     # Initialize Flask app
@@ -27,6 +29,8 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(dashboard_bp, url_prefix='/api/dashboard')
     app.register_blueprint(data_bp, url_prefix='/api')
+    app.register_blueprint(visits_bp, url_prefix='/api')
+    app.register_blueprint(admin_bp, url_prefix='/api')
     
     # Test connection route
     @app.route('/api/test-connection', methods=['GET'])
