@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './AdminDashboard.css';
-import ReportsPage from './ReportsPage';
+import React from 'react';
+import '../AdminPages/AdminDashboard.css';
+import ReportsPage from '../AdminPages/ReportsPage';
 
-const DashboardHome = ({ loading, error, dashboardStats }) => {
+const OfficerDashboardHome = ({ loading, error, dashboardStats }) => {
   return (
     <div className="welcome-section">
       <h2>System Overview</h2>
@@ -14,14 +13,6 @@ const DashboardHome = ({ loading, error, dashboardStats }) => {
         <div className="error-message">{error.stats}</div>
       ) : dashboardStats ? (
         <div className="stats-grid">
-          <div className="stat-card">
-            <i className='bx bx-user-circle stat-icon'></i>
-            <div className="stat-info">
-              <h3>Users</h3>
-              <p className="stat-value">{dashboardStats.user_count}</p>
-            </div>
-          </div>
-          
           <div className="stat-card">
             <i className='bx bx-user-pin stat-icon'></i>
             <div className="stat-info">
@@ -58,7 +49,6 @@ const DashboardHome = ({ loading, error, dashboardStats }) => {
         <p>No statistics available</p>
       )}
       
-      {/* Reports section moved to dashboard */}
       <div className="dashboard-reports-section">
         <h2>Reports</h2>
         <ReportsPage />
@@ -67,4 +57,4 @@ const DashboardHome = ({ loading, error, dashboardStats }) => {
   );
 };
 
-export default DashboardHome;
+export default OfficerDashboardHome;

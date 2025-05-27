@@ -21,7 +21,21 @@ export const AuthProvider = ({ children }) => {
               Authorization: `Bearer ${token}`
             }
           });
-          setCurrentUser(response.data);
+          
+          // Map role_id to role string
+          const roleMap = {
+            1: 'admin',
+            2: 'officer',
+            3: 'visitor'
+          };
+          
+          // Add role string to userData
+          const userData = {
+            ...response.data,
+            role: roleMap[response.data.role_id] || 'visitor'
+          };
+          
+          setCurrentUser(userData);
         } catch (error) {
           console.error('Failed to load user:', error);
           logout();
@@ -42,9 +56,22 @@ export const AuthProvider = ({ children }) => {
       
       const { token, ...userData } = response.data;
       
+      // Map role_id to role string
+      const roleMap = {
+        1: 'admin',
+        2: 'officer',
+        3: 'visitor'
+      };
+      
+      // Add role string to userData
+      const enhancedUserData = {
+        ...userData,
+        role: roleMap[userData.role_id] || 'visitor'
+      };
+      
       localStorage.setItem('token', token);
       setToken(token);
-      setCurrentUser(userData);
+      setCurrentUser(enhancedUserData);
       
       return { 
         success: true
@@ -89,7 +116,8 @@ export const AuthProvider = ({ children }) => {
     login,
     signup,
     logout,
-    isAuthenticated: !!currentUser
+    isAuthenticated: !!currentUser,
+    loading
   };
 
   return (

@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request, current_app
 import traceback
 from sqlalchemy import desc, text
+import datetime
 
 from db import db, PUPC, Visitor, VisitorLog, User, CrimeType
 from routes.auth import token_required
@@ -53,12 +54,129 @@ def get_pucs(current_user):
         current_app.logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
+@data_bp.route('/pucs', methods=['POST'])
+@token_required
+def create_puc(current_user):
+    try:
+        # Check if user is admin or officer
+        if current_user.role_id not in [1, 2]:  # 1=Admin, 2=Officer
+            return jsonify({"error": "Unauthorized"}), 403
+            
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['first_name', 'last_name']
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+        
+        # Create new PUC record
+        new_puc = PUPC(
+            first_name=data['first_name'],
+            last_name=data['last_name'],
+            gender=data.get('gender'),
+            age=data.get('age'),
+            arrest_date=data.get('arrest_date'),
+            release_date=data.get('release_date'),
+            status=data.get('status', 'Pending'),
+            category_id=data.get('category_id'),
+            mugshot_path=data.get('mugshot_path'),
+            crime_id=data.get('crime_id'),
+            created_at=datetime.datetime.utcnow()
+        )
+        
+        db.session.add(new_puc)
+        db.session.commit()
+        
+        # Return the created PUC with all fields
+        return jsonify({
+            'pupc_id': new_puc.pupc_id,
+            'first_name': new_puc.first_name,
+            'last_name': new_puc.last_name,
+            'gender': new_puc.gender,
+            'age': new_puc.age,
+            'arrest_date': new_puc.arrest_date.isoformat() if new_puc.arrest_date else None,
+            'release_date': new_puc.release_date.isoformat() if new_puc.release_date else None,
+            'status': new_puc.status,
+            'category_id': new_puc.category_id,
+            'mugshot_path': new_puc.mugshot_path,
+            'created_at': new_puc.created_at.isoformat() if new_puc.created_at else None,
+            'crime_id': new_puc.crime_id
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error creating PUC: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+@data_bp.route('/pucs/<int:pupc_id>', methods=['PUT'])
+@token_required
+def update_puc(current_user, pupc_id):
+    try:
+        # Check if user is admin or officer
+        if current_user.role_id not in [1, 2]:  # 1=Admin, 2=Officer
+            return jsonify({"error": "Unauthorized"}), 403
+            
+        data = request.json
+        
+        # Find the PUC record
+        puc = PUPC.query.get(pupc_id)
+        if not puc:
+            return jsonify({"error": "PUC record not found"}), 404
+        
+        # Update fields
+        if 'first_name' in data:
+            puc.first_name = data['first_name']
+        if 'last_name' in data:
+            puc.last_name = data['last_name']
+        if 'gender' in data:
+            puc.gender = data['gender']
+        if 'age' in data:
+            puc.age = data['age']
+        if 'arrest_date' in data:
+            puc.arrest_date = data['arrest_date']
+        if 'release_date' in data:
+            puc.release_date = data['release_date']
+        if 'status' in data:
+            puc.status = data['status']
+        if 'category_id' in data:
+            puc.category_id = data['category_id']
+        if 'mugshot_path' in data:
+            puc.mugshot_path = data['mugshot_path']
+        if 'crime_id' in data:
+            puc.crime_id = data['crime_id']
+        
+        db.session.commit()
+        
+        # Return the updated PUC
+        return jsonify({
+            'pupc_id': puc.pupc_id,
+            'first_name': puc.first_name,
+            'last_name': puc.last_name,
+            'gender': puc.gender,
+            'age': puc.age,
+            'arrest_date': puc.arrest_date.isoformat() if puc.arrest_date else None,
+            'release_date': puc.release_date.isoformat() if puc.release_date else None,
+            'status': puc.status,
+            'category_id': puc.category_id,
+            'mugshot_path': puc.mugshot_path,
+            'created_at': puc.created_at.isoformat() if puc.created_at else None,
+            'crime_id': puc.crime_id
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error updating PUC: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
 @data_bp.route('/visitor-logs', methods=['GET'])
 @token_required
 def get_visitor_logs(current_user):
     try:
-        # For admin users, return all visitor logs
-        if current_user.role_id == 1:
+        # For admin or officer users, return all visitor logs
+        if current_user.role_id in [1, 2]:
             # Get all visitor logs with PUC and visitor names
             query = """
             SELECT vl.visitor_log_id, vl.pupc_id, vl.visitor_id, 

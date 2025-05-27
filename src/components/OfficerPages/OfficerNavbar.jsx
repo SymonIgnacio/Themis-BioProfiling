@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useState } from 'react';
-import './AdminDashboard.css';
+import '../AdminPages/AdminDashboard.css';
 
-const AdminNavbar = ({ activeSection, setActiveSection }) => {
+const OfficerNavbar = ({ activeSection, setActiveSection }) => {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState(false);
@@ -31,7 +31,7 @@ const AdminNavbar = ({ activeSection, setActiveSection }) => {
       <div className="admin-sidebar-user">
         <div className="user-info">
           <p className="user-name">{currentUser?.username}</p>
-          <p className="user-role">Officer (Admin)</p>
+          <p className="user-role">Officer</p>
         </div>
       </div>
       <nav className="admin-sidebar-nav">
@@ -66,24 +66,6 @@ const AdminNavbar = ({ activeSection, setActiveSection }) => {
               <span>Blacklisted</span>
             </a>
           </li>
-          <li className={activeSection === 'logs' ? 'active' : ''}>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleNavClick('logs'); }}>
-              <i className='bx bx-history'></i>
-              <span>Audit Logs</span>
-            </a>
-          </li>
-          <li className={activeSection === 'users' ? 'active' : ''}>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleNavClick('users'); }}>
-              <i className='bx bx-group'></i>
-              <span>User Management</span>
-            </a>
-          </li>
-          <li className={activeSection === 'settings' ? 'active' : ''}>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleNavClick('settings'); }}>
-              <i className='bx bx-cog'></i>
-              <span>System Settings</span>
-            </a>
-          </li>
         </ul>
       </nav>
       <div className="admin-sidebar-footer">
@@ -96,4 +78,4 @@ const AdminNavbar = ({ activeSection, setActiveSection }) => {
   );
 };
 
-export default AdminNavbar;
+export default OfficerNavbar;

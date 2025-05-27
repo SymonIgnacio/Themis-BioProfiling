@@ -65,7 +65,7 @@
 }
 
 .status-pending {
-  color: #ff9800;
+  color: #ffffff;
   font-weight: 500;
 }
 
@@ -75,7 +75,7 @@
 }
 
 .status-rejected {
-  color: #e53935;
+  color: #fcf4f4;
   font-weight: 500;
 }
 

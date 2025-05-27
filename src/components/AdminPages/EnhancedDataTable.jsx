@@ -134,6 +134,17 @@ const EnhancedDataTable = ({
 
   return (
     <>
+      {type === 'pucs' && (
+        <div className="table-actions">
+          <button 
+            onClick={() => onAdd && onAdd()}
+            className="add-button"
+          >
+            <i className='bx bx-plus'></i> Add New PUC
+          </button>
+        </div>
+      )}
+      
       <div className="data-table-controls">
         <div className="search-container">
           <input
@@ -145,26 +156,6 @@ const EnhancedDataTable = ({
           />
           <i className='bx bx-search search-icon'></i>
         </div>
-        
-        {type === 'pucs' && (
-          <button 
-            onClick={() => onAdd && onAdd()}
-            style={{
-              padding: '10px 16px',
-              backgroundColor: '#2ecc71',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer',
-              fontWeight: 'bold',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px'
-            }}
-          >
-            <i className='bx bx-plus'></i> Add New PUC
-          </button>
-        )}
       </div>
       
       <div className="data-table-container">

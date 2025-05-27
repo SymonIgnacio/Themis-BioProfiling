@@ -2,8 +2,9 @@ from flask import Blueprint, jsonify, request, current_app
 from flask_bcrypt import Bcrypt
 import traceback
 from sqlalchemy import desc
+import datetime
 
-from db import db, PUPC, Visitor, VisitorLog, User
+from db import db, PUPC, Visitor, VisitorLog, User, AuditLog
 from routes.auth import token_required
 
 # Create blueprint
@@ -96,5 +97,138 @@ def create_visit_request(current_user):
     except Exception as e:
         db.session.rollback()
         current_app.logger.error(f"Error creating visit request: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+@visits_bp.route('/visitor-logs/<int:log_id>/approve', methods=['PUT'])
+@token_required
+def approve_visit(current_user, log_id):
+    try:
+        # Check if user has permission (admin or officer)
+        if current_user.role_id not in [1, 2]:  # Assuming 1=admin, 2=officer
+            return jsonify({"error": "Unauthorized"}), 403
+            
+        # Find the visitor log
+        visit_log = VisitorLog.query.get(log_id)
+        if not visit_log:
+            return jsonify({"error": "Visit log not found"}), 404
+            
+        # Update status
+        visit_log.approval_status = 'Approved'
+        visit_log.approved_by = current_user.user_id
+        visit_log.approval_date = datetime.datetime.now()
+        
+        # Create audit log
+        audit = AuditLog(
+            user_id=current_user.user_id,
+            event_type='Visit Approval',
+            notes=f'Approved visit request #{log_id}',
+            ip_address=request.remote_addr
+        )
+        
+        db.session.add(audit)
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Visit request approved successfully"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error approving visit: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+@visits_bp.route('/visitor-logs/<int:log_id>/reject', methods=['PUT'])
+@token_required
+def reject_visit(current_user, log_id):
+    try:
+        # Check if user has permission (admin or officer)
+        if current_user.role_id not in [1, 2]:  # Assuming 1=admin, 2=officer
+            return jsonify({"error": "Unauthorized"}), 403
+            
+        # Find the visitor log
+        visit_log = VisitorLog.query.get(log_id)
+        if not visit_log:
+            return jsonify({"error": "Visit log not found"}), 404
+            
+        # Update status
+        visit_log.approval_status = 'Rejected'
+        visit_log.approved_by = current_user.user_id
+        visit_log.approval_date = datetime.datetime.now()
+        
+        # Create audit log
+        audit = AuditLog(
+            user_id=current_user.user_id,
+            event_type='Visit Rejection',
+            notes=f'Rejected visit request #{log_id}',
+            ip_address=request.remote_addr
+        )
+        
+        db.session.add(audit)
+        db.session.commit()
+        
+        return jsonify({
+            "success": True,
+            "message": "Visit request rejected successfully"
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error rejecting visit: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+@visits_bp.route('/visitor-logs/stats', methods=['GET'])
+@token_required
+def get_visitor_stats(current_user):
+    try:
+        # Get counts for different approval statuses
+        approved_count = db.session.query(db.func.count(VisitorLog.visitor_log_id)).filter(
+            VisitorLog.approval_status == 'Approved'
+        ).scalar() or 0
+        
+        pending_count = db.session.query(db.func.count(VisitorLog.visitor_log_id)).filter(
+            VisitorLog.approval_status == 'Pending'
+        ).scalar() or 0
+        
+        rejected_count = db.session.query(db.func.count(VisitorLog.visitor_log_id)).filter(
+            VisitorLog.approval_status == 'Rejected'
+        ).scalar() or 0
+        
+        # Get recent visits (last 10)
+        recent_visits_query = db.session.query(
+            VisitorLog,
+            Visitor.first_name.label('visitor_first_name'),
+            Visitor.last_name.label('visitor_last_name'),
+            PUPC.first_name.label('pupc_first_name'),
+            PUPC.last_name.label('pupc_last_name')
+        ).join(
+            Visitor, VisitorLog.visitor_id == Visitor.visitor_id
+        ).join(
+            PUPC, VisitorLog.pupc_id == PUPC.pupc_id
+        ).order_by(
+            desc(VisitorLog.created_at)
+        ).limit(10)
+        
+        recent_visits = []
+        for log, v_first, v_last, p_first, p_last in recent_visits_query:
+            recent_visits.append({
+                'visitor_log_id': log.visitor_log_id,
+                'visitor_name': f"{v_first} {v_last}",
+                'pupc_name': f"{p_first} {p_last}",
+                'visit_date': log.visit_date,
+                'approval_status': log.approval_status
+            })
+        
+        return jsonify({
+            'approved': approved_count,
+            'pending': pending_count,
+            'rejected': rejected_count,
+            'recent_visits': recent_visits
+        })
+        
+    except Exception as e:
+        current_app.logger.error(f"Error fetching visitor stats: {str(e)}")
         current_app.logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500

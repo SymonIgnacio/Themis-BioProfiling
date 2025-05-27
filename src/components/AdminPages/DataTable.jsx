@@ -1,7 +1,117 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './AdminDashboard.css';
 
-const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, emptyMessage, icon }) => {
+const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, emptyMessage, icon, onEdit }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredData, setFilteredData] = useState([]);
+  const [processingIds, setProcessingIds] = useState([]);
+  
+  // Function to handle approval of visitor requests
+  const handleApprove = async (visitorLogId) => {
+    try {
+      setProcessingIds(prev => [...prev, visitorLogId]);
+      const token = localStorage.getItem('token');
+      
+      await axios.put(`http://localhost:5000/api/visitor-logs/${visitorLogId}/approve`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Update the local state to reflect the change
+      setFilteredData(prevData => 
+        prevData.filter(item => item.visitor_log_id !== visitorLogId)
+      );
+      
+      // Show success notification
+      alert('Visit request approved successfully');
+    } catch (error) {
+      console.error('Error approving visit request:', error);
+      alert('Failed to approve visit request. Please try again.');
+    } finally {
+      setProcessingIds(prev => prev.filter(id => id !== visitorLogId));
+    }
+  };
+  
+  // Function to handle rejection of visitor requests
+  const handleReject = async (visitorLogId) => {
+    try {
+      setProcessingIds(prev => [...prev, visitorLogId]);
+      const token = localStorage.getItem('token');
+      
+      await axios.put(`http://localhost:5000/api/visitor-logs/${visitorLogId}/reject`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Update the local state to reflect the change
+      setFilteredData(prevData => 
+        prevData.filter(item => item.visitor_log_id !== visitorLogId)
+      );
+      
+      // Show success notification
+      alert('Visit request rejected successfully');
+    } catch (error) {
+      console.error('Error rejecting visit request:', error);
+      alert('Failed to reject visit request. Please try again.');
+    } finally {
+      setProcessingIds(prev => prev.filter(id => id !== visitorLogId));
+    }
+  };
+
+  useEffect(() => {
+    if (!data) {
+      setFilteredData([]);
+      return;
+    }
+
+    if (!searchTerm) {
+      setFilteredData(data);
+      return;
+    }
+
+    const searchTermLower = searchTerm.toLowerCase();
+    
+    // Filter data based on type
+    switch (type) {
+      case 'visitorLogs':
+        setFilteredData(data.filter(log => 
+          `${log.visitor_first_name} ${log.visitor_last_name}`.toLowerCase().includes(searchTermLower) ||
+          `${log.pupc_first_name} ${log.pupc_last_name}`.toLowerCase().includes(searchTermLower) ||
+          log.purpose.toLowerCase().includes(searchTermLower) ||
+          log.approval_status.toLowerCase().includes(searchTermLower)
+        ));
+        break;
+      case 'approvals':
+        setFilteredData(data.filter(approval => 
+          `${approval.visitor_first_name} ${approval.visitor_last_name}`.toLowerCase().includes(searchTermLower) ||
+          `${approval.pupc_first_name} ${approval.pupc_last_name}`.toLowerCase().includes(searchTermLower) ||
+          approval.purpose.toLowerCase().includes(searchTermLower)
+        ));
+        break;
+      case 'blacklisted':
+        setFilteredData(data.filter(item => 
+          `${item.visitor_first_name} ${item.visitor_last_name}`.toLowerCase().includes(searchTermLower) ||
+          `${item.pupc_first_name} ${item.pupc_last_name}`.toLowerCase().includes(searchTermLower) ||
+          (item.reason && item.reason.toLowerCase().includes(searchTermLower))
+        ));
+        break;
+      case 'auditLogs':
+        setFilteredData(data.filter(log => 
+          (log.username && log.username.toLowerCase().includes(searchTermLower)) ||
+          (log.event_type && log.event_type.toLowerCase().includes(searchTermLower)) ||
+          (log.notes && log.notes.toLowerCase().includes(searchTermLower))
+        ));
+        break;
+      case 'users':
+        setFilteredData(data.filter(user => 
+          user.username.toLowerCase().includes(searchTermLower) ||
+          (user.role_name && user.role_name.toLowerCase().includes(searchTermLower))
+        ));
+        break;
+      default:
+        setFilteredData(data);
+    }
+  }, [data, searchTerm, type]);
+
   const renderTableHeader = () => {
     switch (type) {
       case 'pucs':
@@ -50,7 +160,6 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
             <th>PUC</th>
             <th>Reason</th>
             <th>Added Date</th>
-            <th>Actions</th>
           </tr>
         );
       case 'auditLogs':
@@ -83,7 +192,7 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
   const renderTableRows = () => {
     switch (type) {
       case 'pucs':
-        return data.map(puc => (
+        return filteredData.map(puc => (
           <tr key={puc.pupc_id}>
             <td>{puc.pupc_id}</td>
             <td>{`${puc.first_name} ${puc.last_name}`}</td>
@@ -103,7 +212,7 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
           </tr>
         ));
       case 'visitorLogs':
-        return data.map(log => (
+        return filteredData.map(log => (
           <tr key={log.visitor_log_id}>
             <td>{log.visitor_log_id}</td>
             <td>{`${log.visitor_first_name} ${log.visitor_last_name}`}</td>
@@ -120,7 +229,7 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
           </tr>
         ));
       case 'approvals':
-        return data.map(approval => (
+        return filteredData.map(approval => (
           <tr key={approval.visitor_log_id}>
             <td>{approval.visitor_log_id}</td>
             <td>{`${approval.visitor_first_name} ${approval.visitor_last_name}`}</td>
@@ -129,35 +238,41 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
             <td>{approval.visit_time}</td>
             <td>{approval.purpose}</td>
             <td>
-              <button className="action-btn approve-btn">
-                <i className='bx bx-check'></i>
+              <button 
+                className="action-btn approve-btn" 
+                onClick={() => handleApprove(approval.visitor_log_id)}
+                disabled={processingIds.includes(approval.visitor_log_id)}
+              >
+                {processingIds.includes(approval.visitor_log_id) ? 
+                  <i className='bx bx-loader-alt bx-spin'></i> : 
+                  <i className='bx bx-check'></i>
+                }
               </button>
-              <button className="action-btn reject-btn">
-                <i className='bx bx-x'></i>
+              <button 
+                className="action-btn reject-btn"
+                onClick={() => handleReject(approval.visitor_log_id)}
+                disabled={processingIds.includes(approval.visitor_log_id)}
+              >
+                {processingIds.includes(approval.visitor_log_id) ? 
+                  <i className='bx bx-loader-alt bx-spin'></i> : 
+                  <i className='bx bx-x'></i>
+                }
               </button>
             </td>
           </tr>
         ));
       case 'blacklisted':
-        return data.map(item => (
+        return filteredData.map(item => (
           <tr key={item.black_id}>
             <td>{item.black_id}</td>
             <td>{`${item.visitor_first_name} ${item.visitor_last_name}`}</td>
             <td>{`${item.pupc_first_name} ${item.pupc_last_name}`}</td>
             <td>{item.reason}</td>
             <td>{new Date(item.added_at).toLocaleDateString()}</td>
-            <td>
-              <button className="action-btn view-btn">
-                <i className='bx bx-show'></i>
-              </button>
-              <button className="action-btn remove-btn">
-                <i className='bx bx-trash'></i>
-              </button>
-            </td>
           </tr>
         ));
       case 'auditLogs':
-        return data.map(log => (
+        return filteredData.map(log => (
           <tr key={log.audit_id}>
             <td>{log.audit_id}</td>
             <td>{log.username}</td>
@@ -168,7 +283,7 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
           </tr>
         ));
       case 'users':
-        return data.map(user => (
+        return filteredData.map(user => (
           <tr key={user.user_id}>
             <td>{user.user_id}</td>
             <td>{user.username}</td>
@@ -176,7 +291,10 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
             <td>{new Date(user.created_at).toLocaleDateString()}</td>
             <td>{user.last_login ? new Date(user.last_login).toLocaleString() : 'Never'}</td>
             <td>
-              <button className="action-btn edit-btn">
+              <button 
+                className="action-btn edit-btn"
+                onClick={() => props.onEdit && props.onEdit(user)}
+              >
                 <i className='bx bx-edit'></i>
               </button>
               <button className="action-btn delete-btn">
@@ -208,15 +326,30 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
   }
 
   return (
-    <div className="data-table-container">
-      <table className="data-table">
-        <thead>
-          {renderTableHeader()}
-        </thead>
-        <tbody>
-          {renderTableRows()}
-        </tbody>
-      </table>
+    <div>
+      <div className="data-table-controls">
+        <div className="search-container">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
+          />
+          <i className='bx bx-search search-icon'></i>
+        </div>
+      </div>
+      
+      <div className="data-table-container">
+        <table className="data-table">
+          <thead>
+            {renderTableHeader()}
+          </thead>
+          <tbody>
+            {renderTableRows()}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

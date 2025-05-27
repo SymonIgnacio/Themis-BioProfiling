@@ -96,8 +96,8 @@ def get_users(current_user):
 @token_required
 def get_approvals(current_user):
     try:
-        # Check if user is admin
-        if current_user.role_id != 1:
+        # Check if user is admin or officer
+        if current_user.role_id not in [1, 2]:
             return jsonify({"error": "Unauthorized"}), 403
             
         # Get pending visitor logs
@@ -141,8 +141,8 @@ def get_approvals(current_user):
 @token_required
 def get_blacklisted(current_user):
     try:
-        # Check if user is admin
-        if current_user.role_id != 1:
+        # Check if user is admin or officer
+        if current_user.role_id not in [1, 2]:
             return jsonify({"error": "Unauthorized"}), 403
             
         # Get blacklisted visitors
@@ -220,8 +220,8 @@ def get_audit_logs(current_user):
 @token_required
 def get_dashboard_stats(current_user):
     try:
-        # Check if user is admin
-        if current_user.role_id != 1:
+        # Check if user is admin or officer
+        if current_user.role_id not in [1, 2]:
             return jsonify({"error": "Unauthorized"}), 403
             
         # Get counts from various tables
@@ -271,8 +271,8 @@ def get_dashboard_stats(current_user):
 @token_required
 def get_status_changes(current_user):
     try:
-        # Check if user is admin
-        if current_user.role_id != 1:
+        # Check if user is admin or officer
+        if current_user.role_id not in [1, 2]:
             return jsonify({"error": "Unauthorized"}), 403
             
         # Get PUC status counts

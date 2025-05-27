@@ -2,49 +2,40 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
-import './AdminDashboard.css';
+import '../AdminPages/AdminDashboard.css'; // Reusing admin styles
 
 // Import modular components
-import AdminNavbar from './AdminNavbar';
-import ContentHeader from './ContentHeader';
-import DashboardHome from './DashboardHome';
-import DataTable from './DataTable';
-import EnhancedDataTable from './EnhancedDataTable';
-import PlaceholderContent from './PlaceholderContent';
-import SectionWrapper from './SectionWrapper';
-import PUCModal from './PUCModal';
-import UserModal from './UserModal';
-import ReportsPage from './ReportsPage';
+import OfficerNavbar from './OfficerNavbar';
+import ContentHeader from '../AdminPages/ContentHeader';
+import OfficerDashboardHome from './OfficerDashboardHome';
+import DataTable from '../AdminPages/DataTable';
+import EnhancedDataTable from '../AdminPages/EnhancedDataTable';
+import SectionWrapper from '../AdminPages/SectionWrapper';
+import PUCModal from '../AdminPages/PUCModal';
 
-const AdminDashboard = () => {
+const OfficerDashboard = () => {
   const { currentUser, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('home');
   const [dashboardStats, setDashboardStats] = useState(null);
-  const [users, setUsers] = useState([]);
   const [pucs, setPucs] = useState([]);
   const [visitorLogs, setVisitorLogs] = useState([]);
   const [approvals, setApprovals] = useState([]);
   const [blacklisted, setBlacklisted] = useState([]);
-  const [auditLogs, setAuditLogs] = useState([]);
   const [connectionStatus, setConnectionStatus] = useState(null);
   const [loading, setLoading] = useState({
     stats: false,
-    users: false,
     pucs: false,
     visitorLogs: false,
     approvals: false,
-    blacklisted: false,
-    auditLogs: false
+    blacklisted: false
   });
   const [error, setError] = useState({
     stats: null,
-    users: null,
     pucs: null,
     visitorLogs: null,
     approvals: null,
-    blacklisted: null,
-    auditLogs: null
+    blacklisted: null
   });
 
   // Test database connection
@@ -108,12 +99,6 @@ const AdminDashboard = () => {
       case 'blacklisted':
         fetchData('blacklisted', 'blacklisted', 'blacklisted', 'blacklisted', 'Failed to load blacklisted visitors', setBlacklisted);
         break;
-      case 'logs':
-        fetchData('logs', 'audit-logs', 'audit logs', 'auditLogs', 'Failed to load audit logs', setAuditLogs);
-        break;
-      case 'users':
-        fetchData('users', 'users', 'users', 'users', 'Failed to load users', setUsers);
-        break;
       default:
         break;
     }
@@ -127,11 +112,6 @@ const AdminDashboard = () => {
   const [selectedPUC, setSelectedPUC] = useState(null);
   const [modalMode, setModalMode] = useState(null); // 'view', 'edit', or 'add'
   const [modalOpen, setModalOpen] = useState(false);
-  
-  // State for User modal
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [userModalMode, setUserModalMode] = useState('add');
-  const [userModalOpen, setUserModalOpen] = useState(false);
 
   const handleViewPUC = (puc) => {
     setSelectedPUC(puc);
@@ -181,62 +161,12 @@ const AdminDashboard = () => {
       throw error;
     }
   };
-  
-  // User management functions
-  const handleAddUser = () => {
-    setSelectedUser(null);
-    setUserModalMode('add');
-    setUserModalOpen(true);
-  };
-  
-  const handleEditUser = (user) => {
-    setSelectedUser(user);
-    setUserModalMode('edit');
-    setUserModalOpen(true);
-  };
-  
-  const handleSaveUser = async (formData) => {
-    try {
-      const token = localStorage.getItem('token');
-      const headers = { Authorization: `Bearer ${token}` };
-      
-      // For adding a new user
-      if (userModalMode === 'add') {
-        const response = await axios.post('http://localhost:5000/api/users', formData, { headers });
-        
-        // Add the new user to the state
-        setUsers([...users, response.data]);
-        
-        return response.data;
-      } 
-      // For editing an existing user
-      else if (userModalMode === 'edit' && selectedUser) {
-        // If password is empty, remove it from the request
-        const dataToSend = {...formData};
-        if (!dataToSend.password) {
-          delete dataToSend.password;
-        }
-        
-        const response = await axios.put(`http://localhost:5000/api/users/${selectedUser.user_id}`, dataToSend, { headers });
-        
-        // Update the users state with the updated record
-        setUsers(users.map(user => 
-          user.user_id === selectedUser.user_id ? { ...user, ...response.data } : user
-        ));
-        
-        return response.data;
-      }
-    } catch (error) {
-      console.error('Error saving user:', error);
-      throw error;
-    }
-  };
 
   // Configuration for each section
   const sectionConfig = {
     home: {
       title: 'Dashboard',
-      content: <DashboardHome loading={loading} error={error} dashboardStats={dashboardStats} />
+      content: <OfficerDashboardHome loading={loading} error={error} dashboardStats={dashboardStats} />
     },
     puc: {
       title: 'PUC Records',
@@ -299,56 +229,6 @@ const AdminDashboard = () => {
         emptyMessage="No blacklisted visitors"
         icon="bx-block"
       />
-    },
-    logs: {
-      title: 'Audit Logs',
-      content: <DataTable 
-        loading={loading.auditLogs}
-        error={error.auditLogs}
-        data={auditLogs}
-        type="auditLogs"
-        loadingMessage="Loading audit logs..."
-        emptyMessage="No audit logs found"
-        icon="bx-history"
-      />
-    },
-    users: {
-      title: 'User Management',
-      content: (
-        <>
-          <div className="table-actions">
-            <button onClick={handleAddUser} className="add-button">
-              <i className='bx bx-plus'></i> Add New User
-            </button>
-          </div>
-          <DataTable 
-            loading={loading.users}
-            error={error.users}
-            data={users}
-            type="users"
-            loadingMessage="Loading users..."
-            emptyMessage="No users found"
-            icon="bx-group"
-            onEdit={handleEditUser}
-          />
-          {userModalOpen && (
-            <UserModal
-              isOpen={userModalOpen}
-              onClose={() => setUserModalOpen(false)}
-              onSave={handleSaveUser}
-              mode={userModalMode}
-              user={selectedUser}
-            />
-          )}
-        </>
-      )
-    },
-    settings: {
-      title: 'System Settings',
-      content: <PlaceholderContent 
-        icon="bx-cog" 
-        message="System settings will be displayed here" 
-      />
     }
   };
 
@@ -373,7 +253,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="admin-dashboard-container">
-      <AdminNavbar 
+      <OfficerNavbar 
         activeSection={activeSection} 
         setActiveSection={setActiveSection} 
       />
@@ -397,4 +277,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default OfficerDashboard;
