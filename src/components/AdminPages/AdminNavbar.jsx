@@ -78,12 +78,7 @@ const AdminNavbar = ({ activeSection, setActiveSection }) => {
               <span>User Management</span>
             </a>
           </li>
-          <li className={activeSection === 'settings' ? 'active' : ''}>
-            <a href="#" onClick={(e) => { e.preventDefault(); handleNavClick('settings'); }}>
-              <i className='bx bx-cog'></i>
-              <span>System Settings</span>
-            </a>
-          </li>
+          
         </ul>
       </nav>
       <div className="admin-sidebar-footer">

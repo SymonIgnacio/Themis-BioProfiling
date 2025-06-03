@@ -293,7 +293,7 @@ const DataTable = ({ loading, error, data, type, loadingMessage, errorMessage, e
             <td>
               <button 
                 className="action-btn edit-btn"
-                onClick={() => props.onEdit && props.onEdit(user)}
+                onClick={() => onEdit && onEdit(user)}
               >
                 <i className='bx bx-edit'></i>
               </button>

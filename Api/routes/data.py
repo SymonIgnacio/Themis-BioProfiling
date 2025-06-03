@@ -425,3 +425,56 @@ def get_crime_types(current_user):
         current_app.logger.error(f"Error fetching crime types: {str(e)}")
         current_app.logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+@data_bp.route('/categories', methods=['GET'])
+@token_required
+def get_categories(current_user):
+    try:
+        # Get all crime categories
+        query = text("""
+            SELECT category_id, name
+            FROM crimecategories
+            ORDER BY name
+        """)
+        
+        result = db.session.execute(query)
+        
+        categories = []
+        for row in result:
+            categories.append({
+                'category_id': row[0],
+                'name': row[1]
+            })
+        
+        return jsonify(categories)
+    except Exception as e:
+        current_app.logger.error(f"Error fetching categories: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+
+@data_bp.route('/crimes', methods=['GET'])
+@token_required
+def get_crimes(current_user):
+    try:
+        # Get all crime types
+        query = text("""
+            SELECT crime_id, category_id, name, law_reference
+            FROM crimetypes
+            ORDER BY name
+        """)
+        
+        result = db.session.execute(query)
+        
+        crimes = []
+        for row in result:
+            crimes.append({
+                'crime_id': row[0],
+                'category_id': row[1],
+                'name': row[2],
+                'law_reference': row[3]
+            })
+        
+        return jsonify(crimes)
+    except Exception as e:
+        current_app.logger.error(f"Error fetching crimes: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500

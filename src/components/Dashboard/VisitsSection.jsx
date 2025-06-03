@@ -24,10 +24,22 @@ const VisitsSection = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
         
+        // Process the data to ensure pupc_name is properly set
+        const processedData = response.data.map(visit => {
+          // If pupc_name is missing but we have first and last name, combine them
+          if (!visit.pupc_name && visit.pupc_first_name && visit.pupc_last_name) {
+            return {
+              ...visit,
+              pupc_name: `${visit.pupc_first_name} ${visit.pupc_last_name}`
+            };
+          }
+          return visit;
+        });
+        
         // Filter visits by status
-        const approved = response.data.filter(visit => visit.approval_status === 'Approved');
-        const pending = response.data.filter(visit => visit.approval_status === 'Pending');
-        const rejected = response.data.filter(visit => visit.approval_status === 'Rejected');
+        const approved = processedData.filter(visit => visit.approval_status === 'Approved');
+        const pending = processedData.filter(visit => visit.approval_status === 'Pending');
+        const rejected = processedData.filter(visit => visit.approval_status === 'Rejected');
         
         setApprovedVisits(approved);
         setPendingVisits(pending);
@@ -57,6 +69,9 @@ const VisitsSection = () => {
       setLoading(true);
       const token = localStorage.getItem('token');
       
+      // Get the PUC name from the form data
+      const pucName = visitData.pupc_name;
+      
       // Send visit request data
       await axios.post('http://localhost:5000/api/create-visit', visitData, {
         headers: { Authorization: `Bearer ${token}` }
@@ -67,10 +82,16 @@ const VisitsSection = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       
+      // Process the data to ensure pupc_name is properly set
+      const processedData = response.data.map(visit => ({
+        ...visit,
+        pupc_name: visit.pupc_name || pucName
+      }));
+      
       // Filter visits by status
-      const approved = response.data.filter(visit => visit.approval_status === 'Approved');
-      const pending = response.data.filter(visit => visit.approval_status === 'Pending');
-      const rejected = response.data.filter(visit => visit.approval_status === 'Rejected');
+      const approved = processedData.filter(visit => visit.approval_status === 'Approved');
+      const pending = processedData.filter(visit => visit.approval_status === 'Pending');
+      const rejected = processedData.filter(visit => visit.approval_status === 'Rejected');
       
       setApprovedVisits(approved);
       setPendingVisits(pending);

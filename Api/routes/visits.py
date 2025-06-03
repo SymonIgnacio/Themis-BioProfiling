@@ -232,3 +232,98 @@ def get_visitor_stats(current_user):
         current_app.logger.error(f"Error fetching visitor stats: {str(e)}")
         current_app.logger.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+@visits_bp.route('/visitor-logs', methods=['GET'])
+@token_required
+def get_visitor_logs(current_user):
+    try:
+        # Get visitor ID from the current user
+        visitor = Visitor.query.filter_by(user_id=current_user.user_id).first()
+        
+        if not visitor:
+            return jsonify({"error": "No visitor profile found for this user"}), 404
+            
+        visitor_id = visitor.visitor_id
+        
+        # Query visitor logs with PUC names
+        query = db.session.query(
+            VisitorLog,
+            PUPC.first_name.label('pupc_first_name'),
+            PUPC.last_name.label('pupc_last_name')
+        ).join(
+            PUPC, VisitorLog.pupc_id == PUPC.pupc_id
+        ).filter(
+            VisitorLog.visitor_id == visitor_id
+        ).order_by(desc(VisitorLog.created_at))
+        
+        visits = query.all()
+        
+        result = []
+        for visit, pupc_first_name, pupc_last_name in visits:
+            result.append({
+                'visitor_log_id': visit.visitor_log_id,
+                'pupc_id': visit.pupc_id,
+                'visitor_id': visit.visitor_id,
+                'pupc_name': f"{pupc_first_name} {pupc_last_name}",
+                'visit_time': str(visit.visit_time),
+                'visit_date': visit.visit_date,
+                'purpose': visit.purpose,
+                'approval_status': visit.approval_status,
+                'created_at': visit.created_at
+            })
+        
+        return jsonify(result)
+    except Exception as e:
+        current_app.logger.error(f"Error fetching visitor logs: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500
+@visits_bp.route('/create-visit', methods=['POST'])
+@token_required
+def create_visit(current_user):
+    try:
+        data = request.json
+        
+        # Get visitor ID from the current user
+        visitor = Visitor.query.filter_by(user_id=current_user.user_id).first()
+        
+        if not visitor:
+            return jsonify({"error": "No visitor profile found for this user"}), 404
+            
+        # Get PUC information
+        pupc_id = data.get('pupc_id')
+        if not pupc_id and data.get('pupc_name'):
+            # Try to find PUC by name
+            name_parts = data.get('pupc_name').split(' ', 1)
+            first_name = name_parts[0]
+            last_name = name_parts[1] if len(name_parts) > 1 else ''
+            
+            pupc = PUPC.query.filter_by(first_name=first_name, last_name=last_name).first()
+            if pupc:
+                pupc_id = pupc.pupc_id
+        
+        if not pupc_id:
+            return jsonify({"error": "Invalid PUC information"}), 400
+        
+        # Create new visit request
+        new_visit = VisitorLog(
+            pupc_id=pupc_id,
+            visitor_id=visitor.visitor_id,
+            visit_date=data.get('visit_date'),
+            visit_time=data.get('visit_time'),
+            purpose=data.get('purpose'),
+            approval_status='Pending'
+        )
+        
+        db.session.add(new_visit)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Visit request created successfully',
+            'visitor_log_id': new_visit.visitor_log_id
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error creating visit request: {str(e)}")
+        current_app.logger.error(traceback.format_exc())
+        return jsonify({"error": str(e)}), 500

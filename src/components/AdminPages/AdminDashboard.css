@@ -660,3 +660,158 @@
     align-items: center;
   }
 }
+.visitors-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.visitors-table th,
+.visitors-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.visitors-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.add-visitor-btn {
+  padding: 8px 12px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.add-visitor-btn:hover {
+  background-color: #2980b9;
+}
+
+.remove-btn {
+  background: none;
+  border: none;
+  color: #e74c3c;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.remove-btn:hover {
+  color: #c0392b;
+}
+
+.visitor-form {
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.visitor-form h4 {
+  margin-top: 0;
+  margin-bottom: 15px;
+}
+
+.visitor-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.save-visitor-btn {
+  padding: 8px 12px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-visitor-btn:hover {
+  background-color: #27ae60;
+}
+
+.cancel-visitor-btn {
+  padding: 8px 12px;
+  background-color: #95a5a6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-visitor-btn:hover {
+  background-color: #7f8c8d;
+}
+
+.help-text {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-bottom: 15px;
+}
+
+.no-visitors {
+  font-style: italic;
+  color: #7f8c8d;
+  margin-bottom: 15px;
+}
+
+.form-section {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+.credentials-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 15px;
+}
+
+.credentials-table th,
+.credentials-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.credentials-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.password-toggle-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 10px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.password-toggle-btn:hover {
+  background-color: #f5f5f5;
+}
+/* Blacklist button styling */
+.blacklist-btn {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+.blacklist-btn:hover {
+  background-color: #ff7875;
+}

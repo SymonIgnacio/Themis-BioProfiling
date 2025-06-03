@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 26, 2025 at 12:38 AM
+-- Generation Time: Jun 03, 2025 at 06:38 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,28 @@ SET time_zone = "+00:00";
 --
 -- Database: `themis_db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `approvedvisitors`
+--
+
+CREATE TABLE `approvedvisitors` (
+  `approval_id` int(11) NOT NULL,
+  `pupc_id` int(11) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `relationship` varchar(100) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `visitor_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  `username` varchar(50) DEFAULT NULL,
+  `password` varchar(20) DEFAULT NULL,
+  `account_created` tinyint(1) DEFAULT NULL,
+  `created_at` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -47,7 +69,8 @@ INSERT INTO `auditlogs` (`audit_id`, `user_id`, `event_type`, `event_time`, `ip_
 (4, 8, 'login_fail', '2025-05-26 09:12:15', '192.168.0.5', 'Wrong PIN entered'),
 (5, 7, 'face_login_success', '2025-05-26 10:30:00', '192.168.0.2', 'Facial recognition successful'),
 (6, 8, 'manual_override', '2025-05-26 10:45:00', '192.168.0.5', 'Manual approval used'),
-(7, 7, 'logout', '2025-05-26 11:00:00', '192.168.0.2', 'End of shift logout');
+(7, 7, 'logout', '2025-05-26 11:00:00', '192.168.0.2', 'End of shift logout'),
+(8, 7, 'Visit Approval', '2025-05-27 16:46:59', '127.0.0.1', 'Approved visit request #2');
 
 -- --------------------------------------------------------
 
@@ -184,7 +207,9 @@ INSERT INTO `pupcs` (`pupc_id`, `first_name`, `last_name`, `gender`, `age`, `arr
 (5, 'Angela', 'Martinez', 'Female', 28, '2024-02-20', NULL, 'pending', 2, NULL, '2025-05-26 04:01:34', 6),
 (6, 'Miguel', 'Torres', 'Male', 34, '2024-01-15', NULL, 'released', 3, NULL, '2025-05-26 04:01:34', 11),
 (7, 'Sofia', 'Diaz', 'Female', 21, '2024-05-12', NULL, 'in custody', 1, NULL, '2025-05-26 04:01:34', 4),
-(8, 'Jose', 'Fernandez', 'Male', 38, '2024-05-20', NULL, 'transfered', 2, NULL, '2025-05-26 04:01:34', 7);
+(8, 'Jose', 'Fernandez', 'Male', 38, '2024-05-20', NULL, 'transfered', 2, NULL, '2025-05-26 04:01:34', 7),
+(9, 'Andrei ', 'Torres', 'Male', 21, '2025-05-27', '2025-05-31', 'Released', 1, '', '2025-05-27 16:05:09', 4),
+(12, 'Arron Miguel', 'Castro', 'Male', 20, '2025-06-03', '0000-00-00', 'In Custody', 1, NULL, '2025-06-03 16:34:15', 2);
 
 -- --------------------------------------------------------
 
@@ -260,11 +285,13 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `role_id`, `visitor_id`, `username`, `email`, `password_hash`, `pin_hash`, `face_template`, `created_at`, `last_login`, `full_name`) VALUES
 (7, 1, NULL, 'admin', NULL, 'admin123', NULL, NULL, '2025-05-25 01:01:30', NULL, NULL),
-(8, 3, NULL, 'visitor', NULL, '$2b$12$yEDkakU9e6K/DJElkR3zb.i6MdQNlXCSgZUhIDaBCos6n6FHYhWEi', NULL, NULL, '2025-05-25 01:01:30', NULL, NULL),
-(10, 3, NULL, 'visitor2', NULL, '$2b$12$.7i0XHcB0WPyhtPBpdisIelK5FZjVD5SzwCOnsh5K.2sHbURJra6O', NULL, NULL, '2025-05-25 20:59:26', NULL, NULL),
+(8, 3, 8, 'visitor', NULL, '$2b$12$yEDkakU9e6K/DJElkR3zb.i6MdQNlXCSgZUhIDaBCos6n6FHYhWEi', NULL, NULL, '2025-05-25 01:01:30', NULL, NULL),
+(10, 3, 9, 'visitor2', NULL, '$2b$12$.7i0XHcB0WPyhtPBpdisIelK5FZjVD5SzwCOnsh5K.2sHbURJra6O', NULL, NULL, '2025-05-25 20:59:26', NULL, NULL),
 (11, 2, NULL, 'officer1', NULL, '$2b$12$WkDUQKCpHez12fnpMnckw.cwYYqyl8ijdasoOXlYWKebohQGYwFwq', NULL, NULL, '2025-05-25 21:01:04', NULL, NULL),
-(12, 3, 3, 'Symon', NULL, '$2b$12$jhH7/1ORnokzo/dhXegZveWa4O/7HBYXMGPitJze/6q9rB9dt3//K', NULL, NULL, '2025-05-25 21:28:44', NULL, NULL),
-(13, 3, NULL, 'nats', 'nats123@email.com', '$2b$12$zVUFsxUWTqC6FPsEhtYLSu/grcXBRoJf.cQlcYYu2vRfFm1dVZb2S', NULL, NULL, '2025-05-25 21:38:50', NULL, 'Nats Gonzales');
+(12, 3, 11, 'Symon', NULL, '$2b$12$jhH7/1ORnokzo/dhXegZveWa4O/7HBYXMGPitJze/6q9rB9dt3//K', NULL, NULL, '2025-05-25 21:28:44', NULL, NULL),
+(13, 3, 10, 'nats', 'nats123@email.com', '$2b$12$zVUFsxUWTqC6FPsEhtYLSu/grcXBRoJf.cQlcYYu2vRfFm1dVZb2S', NULL, NULL, '2025-05-25 21:38:50', NULL, 'Nats Gonzales'),
+(14, 2, NULL, 'officer2', 'officer2@themis.gov', '$2b$12$k3umCzqBd/7TOEznAlAoauztw3YYmGWzwr7I0EVzF82BCY6p6HeeK', NULL, NULL, '2025-05-26 22:48:47', NULL, 'Officer Mendoza'),
+(15, 2, NULL, 'officer', 'officer@example.com', '$2b$12$t8glSaDQm6cFeYJCeAIifurY.1jIQghzhvdV7L2l1aqs1z9AKiNxW', NULL, NULL, '2025-05-26 14:58:02', NULL, 'Officer User');
 
 -- --------------------------------------------------------
 
@@ -314,12 +341,13 @@ CREATE TABLE `visitorlogs` (
 
 INSERT INTO `visitorlogs` (`visitor_log_id`, `pupc_id`, `visitor_id`, `visit_time`, `visit_date`, `purpose`, `photo_path`, `approval_status`, `approved_by`, `created_at`) VALUES
 (1, 1, 1, '10:00:00', '2025-05-24', 'Visit', 'visit_photos/ana_visit.jpg', 'Approved', 7, '2025-05-25 03:22:44'),
-(2, 2, 2, '14:00:00', '2025-05-24', 'Deliver items', 'visit_photos/pedro_visit.jpg', 'Pending', 8, '2025-05-25 03:22:44'),
-(8, 1, 3, '09:30:00', '2025-05-20', 'Legal Consultation', 'visit_photos/symon_1.jpg', 'Approved', 7, '2025-05-26 05:49:23'),
-(9, 2, 3, '10:45:00', '2025-05-21', 'Food Delivery', 'visit_photos/symon_2.jpg', 'Pending', 8, '2025-05-26 05:49:23'),
-(10, 1, 3, '13:15:00', '2025-05-22', 'Medical Support', 'visit_photos/symon_3.jpg', 'Rejected', 7, '2025-05-26 05:49:23'),
-(11, 2, 3, '14:30:00', '2025-05-23', 'Routine Visit', 'visit_photos/symon_4.jpg', 'Approved', 7, '2025-05-26 05:49:23'),
-(12, 1, 3, '16:00:00', '2025-05-24', 'Bring Clothes', 'visit_photos/symon_5.jpg', 'Pending', NULL, '2025-05-26 05:49:23');
+(2, 2, 2, '14:00:00', '2025-05-24', 'Deliver items', 'visit_photos/pedro_visit.jpg', 'Approved', 7, '2025-05-25 03:22:44'),
+(18, 7, 11, '09:10:00', '2025-05-15', 'Deliver Essentials', 'visit_photos/visitor11_sofia1.jpg', 'Approved', 7, '2025-05-15 09:12:00'),
+(19, 7, 11, '14:45:00', '2025-05-10', 'Medical Check-in', 'visit_photos/visitor11_sofia2.jpg', 'Pending', 8, '2025-05-10 14:46:00'),
+(20, 7, 11, '11:30:00', '2025-04-30', 'Legal Assistance', 'visit_photos/visitor11_sofia3.jpg', 'Rejected', 8, '2025-04-30 11:35:00'),
+(21, 7, 11, '13:15:00', '2025-04-25', 'Emotional Support Visit', 'visit_photos/visitor11_sofia4.jpg', 'Approved', 7, '2025-04-25 13:20:00'),
+(22, 7, 11, '10:00:00', '2025-04-18', 'Deliver Books', 'visit_photos/visitor11_sofia5.jpg', 'Pending', NULL, '2025-04-18 10:01:00'),
+(23, 1, 11, '11:00:00', '2025-06-04', 'Discuss Bail Payment and Checkup (Visiting: Nats Gonzales)', NULL, 'Pending', NULL, '2025-06-03 14:22:16');
 
 -- --------------------------------------------------------
 
@@ -343,15 +371,24 @@ CREATE TABLE `visitors` (
 INSERT INTO `visitors` (`visitor_id`, `first_name`, `last_name`, `relationship_to_puc`, `photo_path`, `registered_at`) VALUES
 (1, 'Ana', 'Reyes', 'Sister', 'photos/ana.jpg', '2025-05-25 03:22:44'),
 (2, 'Pedro', 'Lopez', 'Friend', 'photos/pedro.jpg', '2025-05-25 03:22:44'),
-(3, 'Luis', 'Gomez', 'Father', 'photos/luis.jpg', '2025-05-26 04:01:49'),
 (4, 'Carmen', 'Velasquez', 'Mother', 'photos/carmen.jpg', '2025-05-26 04:01:49'),
 (5, 'Ricardo', 'Mendoza', 'Brother', 'photos/ricardo.jpg', '2025-05-26 04:01:49'),
 (6, 'Elena', 'Cruz', 'Wife', 'photos/elena.jpg', '2025-05-26 04:01:49'),
-(7, 'Julio', 'Navarro', 'Lawyer', 'photos/julio.jpg', '2025-05-26 04:01:49');
+(7, 'Julio', 'Navarro', 'Lawyer', 'photos/julio.jpg', '2025-05-26 04:01:49'),
+(8, 'visitor', '', NULL, NULL, '2025-05-26 07:22:40'),
+(9, 'visitor2', '', NULL, NULL, '2025-05-26 07:22:40'),
+(10, 'Nats', 'Gonzales', NULL, NULL, '2025-05-26 07:22:40'),
+(11, 'Symon', '', NULL, NULL, '2025-05-26 07:29:31');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `approvedvisitors`
+--
+ALTER TABLE `approvedvisitors`
+  ADD PRIMARY KEY (`approval_id`);
 
 --
 -- Indexes for table `auditlogs`
@@ -452,16 +489,22 @@ ALTER TABLE `visitors`
 --
 
 --
+-- AUTO_INCREMENT for table `approvedvisitors`
+--
+ALTER TABLE `approvedvisitors`
+  MODIFY `approval_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `auditlogs`
 --
 ALTER TABLE `auditlogs`
-  MODIFY `audit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `audit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `blacklist`
 --
 ALTER TABLE `blacklist`
-  MODIFY `black_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `black_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `crimecategories`
@@ -485,7 +528,7 @@ ALTER TABLE `notifications`
 -- AUTO_INCREMENT for table `pupcs`
 --
 ALTER TABLE `pupcs`
-  MODIFY `pupc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `pupc_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `pupcstatushistory`
@@ -503,7 +546,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `visitorapprovals`
@@ -515,13 +558,13 @@ ALTER TABLE `visitorapprovals`
 -- AUTO_INCREMENT for table `visitorlogs`
 --
 ALTER TABLE `visitorlogs`
-  MODIFY `visitor_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `visitor_log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `visitors`
 --
 ALTER TABLE `visitors`
-  MODIFY `visitor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `visitor_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- Constraints for dumped tables

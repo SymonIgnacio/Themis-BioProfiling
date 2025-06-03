@@ -105,3 +105,19 @@ def init_db(app):
     with app.app_context():
         db.create_all()
     return db
+# ApprovedVisitor model
+class ApprovedVisitor(db.Model):
+    __tablename__ = 'approvedvisitors'
+    approval_id = db.Column(db.Integer, primary_key=True)
+    pupc_id = db.Column(db.Integer, nullable=False)
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    relationship = db.Column(db.String(100), nullable=True)
+    email = db.Column(db.String(100), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
+    visitor_id = db.Column(db.Integer, nullable=True)  # Will be populated when account is created
+    user_id = db.Column(db.Integer, nullable=True)     # Will be populated when account is created
+    username = db.Column(db.String(50), nullable=True) # Generated username
+    password = db.Column(db.String(20), nullable=True) # Generated initial password
+    account_created = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
