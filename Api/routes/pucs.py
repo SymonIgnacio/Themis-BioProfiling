@@ -19,7 +19,8 @@ def get_pucs(current_user):
         query = text("""
             SELECT p.pupc_id, p.first_name, p.last_name, p.gender, p.age, 
                    p.arrest_date, p.release_date, p.status, p.mugshot_path,
-                   cc.name as category_name, ct.name as crime_name
+                   cc.name as category_name, ct.name as crime_name,
+                   CONCAT(p.first_name, ' ', p.last_name) as name
             FROM pupcs p
             LEFT JOIN crimecategories cc ON p.category_id = cc.category_id
             LEFT JOIN crimetypes ct ON p.crime_id = ct.crime_id
@@ -42,6 +43,7 @@ def get_pucs(current_user):
                 'mugshot_path': row[8],
                 'category_name': row[9],
                 'crime_name': row[10],
+                'name': row[11],
                 'full_name': f"{row[1]} {row[2]}"
             })
         

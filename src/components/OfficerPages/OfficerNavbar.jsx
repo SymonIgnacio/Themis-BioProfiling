@@ -67,13 +67,14 @@ const OfficerNavbar = ({ activeSection, setActiveSection }) => {
             </a>
           </li>
         </ul>
-      </nav>
-      <div className="admin-sidebar-footer">
-        <button className="logout-button" onClick={handleLogout}>
+        
+        {/* Logout button placed below tabs */}
+        <button className="logout-button-tabs" onClick={handleLogout}>
           <i className='bx bx-log-out'></i>
           <span>Logout</span>
         </button>
-      </div>
+      </nav>
+      {/* Footer removed - logout button moved below tabs */}
     </div>
   );
 };

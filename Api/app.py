@@ -16,6 +16,7 @@ from routes.officer import officer_bp
 from routes.pucs import pucs_bp
 from routes.visitors_sqlalchemy import visitors_bp
 from routes.blacklist import blacklist_bp
+from routes.reports import reports_bp
 
 def create_app():
     # Initialize Flask app
@@ -39,6 +40,7 @@ def create_app():
     app.register_blueprint(pucs_bp, url_prefix='/api')
     app.register_blueprint(visitors_bp, url_prefix='/api')
     app.register_blueprint(blacklist_bp, url_prefix='/api')
+    app.register_blueprint(reports_bp, url_prefix='/api')
     
     # Test connection route
     @app.route('/api/test-connection', methods=['GET'])

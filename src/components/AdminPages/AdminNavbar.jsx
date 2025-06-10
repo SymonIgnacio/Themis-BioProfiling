@@ -72,21 +72,27 @@ const AdminNavbar = ({ activeSection, setActiveSection }) => {
               <span>Audit Logs</span>
             </a>
           </li>
+          <li className={activeSection === 'reports' ? 'active' : ''}>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleNavClick('reports'); }}>
+              <i className='bx bx-chart'></i>
+              <span>Reports</span>
+            </a>
+          </li>
           <li className={activeSection === 'users' ? 'active' : ''}>
             <a href="#" onClick={(e) => { e.preventDefault(); handleNavClick('users'); }}>
               <i className='bx bx-group'></i>
               <span>User Management</span>
             </a>
           </li>
-          
         </ul>
-      </nav>
-      <div className="admin-sidebar-footer">
-        <button className="logout-button" onClick={handleLogout}>
+        
+        {/* Logout button placed below tabs */}
+        <button className="logout-button-tabs" onClick={handleLogout}>
           <i className='bx bx-log-out'></i>
           <span>Logout</span>
         </button>
-      </div>
+      </nav>
+      {/* Footer removed - logout button moved below tabs */}
     </div>
   );
 };

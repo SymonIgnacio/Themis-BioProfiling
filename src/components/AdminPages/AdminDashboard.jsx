@@ -238,6 +238,10 @@ const AdminDashboard = () => {
       title: 'Dashboard',
       content: <DashboardHome loading={loading} error={error} dashboardStats={dashboardStats} />
     },
+    reports: {
+      title: 'Reports',
+      content: <ReportsPage />
+    },
     puc: {
       title: 'PUC Records',
       content: <>

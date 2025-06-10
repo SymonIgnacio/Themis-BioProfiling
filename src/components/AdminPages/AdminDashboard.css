@@ -59,6 +59,32 @@
   margin: 0;
 }
 
+/* New style for logout button below tabs */
+.logout-button-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  margin: 15px auto;
+  width: 90%;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-button-tabs i {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
+.logout-button-tabs:hover {
+  background-color: #c0392b;
+}
+
 .admin-sidebar-nav li {
   margin-bottom: 5px;
 }
